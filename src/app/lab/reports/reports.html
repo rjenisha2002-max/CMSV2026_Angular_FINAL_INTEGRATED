@@ -1,0 +1,46 @@
+<h3>Completed Reports</h3>
+
+<div class="form-inline mb-3">
+  <input type="text" class="form-control mr-2" placeholder="Search by MMR code" [(ngModel)]="searchMMR" (keyup.enter)="load()" />
+  <button class="btn btn-success" (click)="load()">Search</button>
+</div>
+
+<div class="alert alert-info" *ngIf="loading">Loading...</div>
+<div class="alert alert-danger" *ngIf="error">{{ error }}</div>
+<div class="alert alert-success" *ngIf="message">{{ message }}</div>
+
+<table class="table table-bordered bg-white" *ngIf="!loading">
+  <thead class="thead-light">
+    <tr><th>MMR</th><th>Patient</th><th>Test</th><th>Result</th><th>Abnormal</th><th>Doctor</th><th></th></tr>
+  </thead>
+  <tbody>
+    <ng-container *ngFor="let r of results">
+      <tr [class.table-danger]="r.isAbnormal">
+        <td>{{ r.mmrCode }}</td>
+        <td>{{ r.patientName }}</td>
+        <td>{{ r.testName }}</td>
+        <td>{{ r.resultValue }}</td>
+        <td>{{ r.isAbnormal ? 'Yes' : 'No' }}</td>
+        <td>{{ r.doctorName }}</td>
+        <td>
+          <button class="btn btn-sm btn-outline-primary mr-1" (click)="viewDetail(r.resultId)">View</button>
+          <button class="btn btn-sm btn-outline-secondary" (click)="resend(r.resultId)">Resend Email</button>
+        </td>
+      </tr>
+    </ng-container>
+    <tr *ngIf="results.length === 0"><td colspan="7" class="text-center text-muted">No completed reports.</td></tr>
+  </tbody>
+</table>
+
+<div class="card mt-3" *ngIf="detail">
+  <div class="card-body">
+    <button class="btn btn-sm btn-outline-secondary mb-2" (click)="detail = null">Close</button>
+    <h5>{{ detail.patientName }} ({{ detail.mmrCode }})</h5>
+    <p><strong>Test:</strong> {{ detail.testName }} &middot; <strong>Result:</strong> {{ detail.resultValue }}</p>
+    <p><strong>Normal Range:</strong> {{ detail.normalRange }} &middot; <strong>Abnormal:</strong> {{ detail.isAbnormal ? 'Yes' : 'No' }}</p>
+    <p><strong>Observation:</strong> {{ detail.observation }}</p>
+    <p><strong>Remarks:</strong> {{ detail.remarks }}</p>
+    <p><strong>Doctor:</strong> {{ detail.doctorName }} &middot; <strong>Technician:</strong> {{ detail.technicianName }}</p>
+    <p><strong>Result Date:</strong> {{ detail.resultDate | date: 'medium' }}</p>
+  </div>
+</div>

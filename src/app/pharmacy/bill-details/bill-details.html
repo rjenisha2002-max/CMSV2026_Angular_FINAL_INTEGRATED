@@ -1,0 +1,191 @@
+<div class="ph-page">
+
+  <div *ngIf="loading" class="text-center py-5">
+    <div class="spinner-border text-primary"></div>
+  </div>
+  <div *ngIf="error" class="alert alert-danger">
+    <i class="fa-solid fa-circle-exclamation me-2"></i>{{ error }}
+  </div>
+  <div *ngIf="successMsg" class="alert alert-success">
+    <i class="fa-solid fa-circle-check me-2"></i>{{ successMsg }}
+  </div>
+
+  <ng-container *ngIf="!loading && bill">
+
+    <!-- Header -->
+    <div class="d-flex align-items-center justify-content-between mb-4">
+      <div>
+        <div class="page-title">Bill Details</div>
+        <div class="page-sub">Bill {{ billNo(bill.billId) }}</div>
+      </div>
+      <div class="d-flex gap-2 flex-wrap">
+        <a routerLink="/pharmacy/bills" class="btn-outline-cms">
+          <i class="fa-solid fa-arrow-left me-1"></i> Back to Bills
+        </a>
+        <a [routerLink]="['/pharmacy/bills', bill.billId, 'invoice']" target="_blank"
+           class="btn-outline-cms">
+          <i class="fa-solid fa-print me-1"></i> Print Invoice
+        </a>
+        <button class="btn-outline-cms" (click)="openInvoicePdf()">
+          <i class="fa-solid fa-file-pdf me-1"></i> Download PDF
+        </button>
+        <button *ngIf="bill.status?.toLowerCase() !== 'cancelled'"
+                class="btn-danger-cms" (click)="openCancelModal()">
+          <i class="fa-solid fa-ban me-1"></i> Cancel Bill
+        </button>
+      </div>
+    </div>
+
+    <!-- Prescription link banner (auto-generated from dispensing) -->
+    <div *ngIf="prescriptionLink"
+         class="alert alert-info d-flex align-items-center justify-content-between flex-wrap gap-2 mb-4">
+      <span>
+        <i class="fa-solid fa-file-prescription me-2"></i>
+        Auto-generated from prescription
+        <strong>{{ rxNo(prescriptionLink.prescriptionId) }}</strong>
+        (Dispense <strong>{{ dispNo(prescriptionLink.dispenseId) }}</strong>)
+        — stock was deducted once at dispensing.
+      </span>
+      <a [routerLink]="['/pharmacy/prescription', prescriptionLink.prescriptionId]"
+         class="btn-outline-cms btn-sm-cms">
+        <i class="fa-solid fa-eye me-1"></i> View Prescription
+      </a>
+    </div>
+
+    <!-- Bill Info Row -->
+    <div class="row g-3 mb-4">
+      <div class="col-md-6">
+        <div class="cms-card h-100">
+          <div class="cms-card-header">
+            <span class="cms-card-title"><i class="fa-solid fa-user"></i> Patient Information</span>
+          </div>
+          <div class="cms-card-body">
+            <table style="font-size:13px;width:100%;border-collapse:collapse;">
+              <tr>
+                <td style="color:#64748b;padding:5px 0;width:140px;">Patient Code</td>
+                <td style="font-weight:600;">{{ bill.patientCode || '—' }}</td>
+              </tr>
+              <tr>
+                <td style="color:#64748b;padding:5px 0;">Patient Name</td>
+                <td style="font-weight:600;">{{ bill.patientName || 'Patient #' + bill.patientId }}</td>
+              </tr>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="cms-card h-100">
+          <div class="cms-card-header">
+            <span class="cms-card-title"><i class="fa-solid fa-receipt"></i> Bill Information</span>
+          </div>
+          <div class="cms-card-body">
+            <table style="font-size:13px;width:100%;border-collapse:collapse;">
+              <tr>
+                <td style="color:#64748b;padding:5px 0;width:140px;">Bill No.</td>
+                <td style="font-weight:600;">{{ billNo(bill.billId) }}</td>
+              </tr>
+              <tr>
+                <td style="color:#64748b;padding:5px 0;">Bill Date</td>
+                <td>{{ bill.billDate | date:'dd MMM yyyy hh:mm a' }}</td>
+              </tr>
+              <tr>
+                <td style="color:#64748b;padding:5px 0;">Status</td>
+                <td>
+                  <span class="badge-cms" [ngClass]="statusClass(bill.status)">
+                    {{ bill.status || 'Pending' }}
+                  </span>
+                </td>
+              </tr>
+              <tr>
+                <td style="color:#64748b;padding:5px 0;">Total Amount</td>
+                <td style="font-weight:700;font-size:16px;color:#198754;">
+                  ₹{{ totalAmount | number:'1.2-2' }}
+                </td>
+              </tr>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bill Items -->
+    <div class="cms-card">
+      <div class="cms-card-header">
+        <span class="cms-card-title"><i class="fa-solid fa-pills"></i> Bill Items</span>
+        <span class="badge bg-secondary">{{ items.length }} item(s)</span>
+      </div>
+      <div style="overflow-x:auto;">
+        <table class="cms-table">
+          <thead>
+            <tr>
+              <th>S.No</th>
+              <th>Medicine</th>
+              <th class="text-center">Qty</th>
+              <th class="text-end">Unit Price</th>
+              <th class="text-end">Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of items; let i = index">
+              <td style="color:#94a3b8;">{{ i + 1 }}</td>
+              <td style="font-weight:600;">{{ item.medicineName }}</td>
+              <td class="text-center">{{ item.quantity }}</td>
+              <td class="text-end">₹{{ item.unitPrice | number:'1.2-2' }}</td>
+              <td class="text-end" style="font-weight:700;">₹{{ item.amount | number:'1.2-2' }}</td>
+            </tr>
+            <tr style="background:#f8fafc;font-weight:700;">
+              <td colspan="4" class="text-end" style="padding:11px 14px;">TOTAL</td>
+              <td class="text-end" style="font-size:15px;color:#198754;padding:11px 14px;">
+                ₹{{ totalAmount | number:'1.2-2' }}
+              </td>
+            </tr>
+            <tr *ngIf="items.length === 0">
+              <td colspan="5" style="text-align:center;padding:32px;color:#94a3b8;">
+                No items found for this bill.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </ng-container>
+</div>
+
+<!-- Cancel Bill Modal -->
+<div *ngIf="showCancelModal"
+     class="modal show" tabindex="-1"
+     style="display:block;background:rgba(0,0,0,0.5);">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="border-radius:12px;">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <i class="fa-solid fa-ban text-danger me-2"></i>
+          Cancel Bill {{ bill ? billNo(bill.billId) : '' }}
+        </h5>
+        <button type="button" class="btn-close" (click)="closeCancelModal()"
+                [disabled]="cancelling"></button>
+      </div>
+      <div class="modal-body">
+        <p class="mb-3" style="font-size:13px;color:#475569;">
+          Cancelling this bill will restore the dispensed stock back to inventory.
+          This action is recorded in the audit log.
+        </p>
+        <label class="form-label-cms">Reason for cancellation <span class="req">*</span></label>
+        <textarea class="form-control-cms" rows="3" [(ngModel)]="cancelReason"
+                  placeholder="Enter reason for cancelling this bill..."></textarea>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-outline-cms" (click)="closeCancelModal()"
+                [disabled]="cancelling">Keep Bill</button>
+        <button type="button" class="btn-danger-cms"
+                (click)="cancelBill()"
+                [disabled]="cancelling || !cancelReason.trim()">
+          <span *ngIf="cancelling" class="spinner-border spinner-border-sm me-1"></span>
+          <i *ngIf="!cancelling" class="fa-solid fa-ban me-1"></i>
+          {{ cancelling ? 'Cancelling…' : 'Confirm Cancellation' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

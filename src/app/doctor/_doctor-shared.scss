@@ -1,0 +1,48 @@
+// =====================================================================
+// Doctor module — shared theme partial.
+// Matches the SAME teal-green brand family used on the login page
+// (see auth/login/login.scss) so every doctor screen looks consistent
+// with the rest of the app after login.
+// This file is Sass-only (no CSS is emitted on its own) — each doctor
+// component @imports it and calls the mixin it needs.
+// =====================================================================
+
+$doctor-brand-dark: #123f37;
+$doctor-brand: #16594d;
+$doctor-brand-light: #2e8b7c;
+$doctor-brand-accent: #1fae7a;
+$doctor-brand-accent-dark: #148a5f;
+
+$doctor-sidebar-width: 250px;
+$doctor-sidebar-width-collapsed: 74px;
+
+@mixin doctor-page-layout {
+  .doctor-layout {
+    display: flex;
+    min-height: 100vh;
+  }
+
+  .doctor-content {
+    flex: 1;
+    min-width: 0;
+    padding: 1.75rem 2rem;
+    background: #f5fbff;
+  }
+
+  .btn-theme {
+    background: linear-gradient(135deg, $doctor-brand-accent, $doctor-brand-accent-dark);
+  }
+  .btn-theme-outline {
+    border-color: $doctor-brand-light;
+    color: $doctor-brand-dark;
+
+    &:hover {
+      background: rgba(46, 139, 124, 0.08);
+      color: $doctor-brand-dark;
+    }
+  }
+  .badge-theme {
+    background: rgba(22, 89, 77, 0.12);
+    color: $doctor-brand-dark;
+  }
+}

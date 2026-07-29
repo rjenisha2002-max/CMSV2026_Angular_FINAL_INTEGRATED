@@ -1,0 +1,127 @@
+/* Main Layout */
+/* This sits inside .app-content, which now has a real flex-computed height
+   (see app.scss) - so we fill 100% of it. Sidebar and main-content both fill
+   that height; only .page-content scrolls internally. */
+
+.layout-container {
+  display: flex;
+  height: 100%;
+  background: #f4f7fa;
+  overflow: hidden;
+}
+
+/* Sidebar */
+.sidebar {
+  width: 250px;
+  flex-shrink: 0;
+  height: 100%;
+  background: #0f4c5c;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+
+  /* Hide the scrollbar visually, keep scrolling functional */
+  scrollbar-width: none;       /* Firefox */
+  -ms-overflow-style: none;    /* old Edge/IE */
+  &::-webkit-scrollbar {
+    display: none;             /* Chrome, Edge, Safari */
+  }
+}
+
+// .logo {
+//   padding: 25px 20px;
+//   text-align: center;
+//   border-bottom: 1px solid rgba(255,255,255,.15);
+//   flex-shrink: 0;
+// }
+
+// .logo h3 {
+//   margin: 0;
+//   font-weight: 600;
+// }
+
+// .logo small {
+//   color: #d8f3f6;
+// }
+
+/* Menu */
+
+.menu {
+  list-style: none;
+  padding: 20px 0;
+  padding-top: 15px;
+  margin: 0;
+}
+
+.menu li {
+  margin-bottom: 5px;
+}
+
+.menu a {
+  display: block;
+  color: white;
+  text-decoration: none;
+  padding: 14px 25px;
+  transition: .3s;
+}
+
+.menu a:hover {
+  background: #156b7d;
+}
+
+.menu a.active {
+  background: white;
+  color: #0f4c5c;
+  font-weight: 600;
+}
+
+.menu i {
+  width: 25px;
+}
+
+/* Sidebar footer (user info) - pinned to the bottom of the sidebar */
+
+.sidebar-footer {
+  margin-top: auto;
+  padding: 18px 20px;
+  border-top: 1px solid rgba(255,255,255,.15);
+  flex-shrink: 0;
+}
+
+.user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.user i {
+  font-size: 28px;
+  opacity: .85;
+}
+
+/* Main Content */
+
+.main-content {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Page */
+.page-content {
+  flex: 1;
+  padding: 25px;
+  overflow-y: auto;
+  min-width: 0;
+
+  /* Hide the scrollbar visually, keep scrolling functional */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}

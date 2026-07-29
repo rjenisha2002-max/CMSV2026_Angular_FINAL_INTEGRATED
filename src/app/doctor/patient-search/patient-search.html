@@ -1,0 +1,62 @@
+<div class="doctor-layout">
+  <app-doctor-sidebar></app-doctor-sidebar>
+
+  <div class="doctor-content">
+    <h3>Patient History &amp; Reports</h3>
+
+    <div class="form-inline mb-3">
+      <input
+        type="text"
+        class="form-control mr-2"
+        style="min-width: 260px;"
+        placeholder="Search by MMR code, name or mobile"
+        [(ngModel)]="searchKeyword"
+        (keyup.enter)="search()"
+      />
+      <button class="btn btn-theme" (click)="search()">Search</button>
+    </div>
+
+    <div class="alert alert-info" *ngIf="loading">Loading...</div>
+    <div class="alert alert-danger" *ngIf="error">{{ error }}</div>
+
+    <table class="table table-bordered table-hover bg-white" *ngIf="!report && results.length">
+      <thead class="thead-light">
+        <tr><th>MMR Code</th><th>Name</th><th>Mobile</th><th></th></tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let p of results">
+          <td>{{ p.mmrCode }}</td>
+          <td>{{ p.fullName }}</td>
+          <td>{{ p.mobileNumber }}</td>
+          <td><button class="btn btn-sm btn-theme" (click)="viewReport(p.mmrCode)">View Full Report</button></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="card" *ngIf="report">
+      <div class="card-body">
+        <button class="btn btn-sm btn-theme-outline float-right" (click)="report = null">Back to results</button>
+        <button class="btn btn-sm btn-theme-outline float-right mr-2" (click)="downloadPdf()"><i class="fa fa-file-pdf-o"></i> Download PDF</button>
+        <h4>{{ report.patientName }} <small class="text-muted">({{ report.mmrCode }}, {{ report.age }} / {{ report.gender }})</small></h4>
+
+        <h5 class="mt-3">Lab Results</h5>
+        <table class="table table-sm table-bordered" *ngIf="report.labResults?.length">
+          <thead>
+            <tr><th>Test</th><th>Result</th><th>Normal Range</th><th>Status</th><th>Date</th><th>Doctor</th></tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let r of report.labResults" [class.table-danger]="r.isAbnormal">
+              <td>{{ r.testName }}</td>
+              <td>{{ r.resultValue }}</td>
+              <td>{{ r.normalRange }}</td>
+              <td>{{ r.status }}</td>
+              <td>{{ r.resultDate | date: 'mediumDate' }}</td>
+              <td>{{ r.doctorName }}</td>
+            </tr>
+          </tbody>
+        </table>
+        <p *ngIf="!report.labResults?.length" class="text-muted">No lab results on file.</p>
+      </div>
+    </div>
+  </div>
+</div>

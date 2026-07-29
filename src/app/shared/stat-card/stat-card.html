@@ -1,0 +1,6 @@
+<div class="card text-white stat-card" [ngClass]="colorClass" [@cardEnter]="animationParams">
+  <div class="card-body">
+    <h6 class="stat-card__label">{{ label }}</h6>
+    <p class="stat-card__value" [appCountUp]="value" [countUpPrefix]="prefix" [countUpDecimals]="decimals"></p>
+  </div>
+</div>

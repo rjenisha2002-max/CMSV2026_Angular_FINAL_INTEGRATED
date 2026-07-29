@@ -1,0 +1,24 @@
+.voice-search-btn {
+  display: inline-flex;
+  align-items: center;
+  line-height: 1;
+}
+
+.mic-icon {
+  display: inline-block;
+}
+
+.mic-icon.pulse {
+  animation: voice-pulse 1s infinite ease-in-out;
+}
+
+.voice-search-error {
+  display: block;
+  margin-top: 4px;
+}
+
+@keyframes voice-pulse {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.25); opacity: 0.6; }
+  100% { transform: scale(1); opacity: 1; }
+}

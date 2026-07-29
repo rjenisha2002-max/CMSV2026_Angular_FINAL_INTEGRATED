@@ -1,0 +1,28 @@
+<h3>Pending Tests</h3>
+
+<div class="form-inline mb-3">
+  <input type="text" class="form-control mr-2" placeholder="Search by MMR code" [(ngModel)]="searchMMR" (keyup.enter)="search()" />
+  <button class="btn btn-success" (click)="search()">Search</button>
+</div>
+
+<div class="alert alert-info" *ngIf="loading">Loading...</div>
+<div class="alert alert-danger" *ngIf="error">{{ error }}</div>
+
+<table class="table table-bordered bg-white" *ngIf="!loading && !error">
+  <thead class="thead-light">
+    <tr><th>MMR</th><th>Patient</th><th>Age/Gender</th><th>Test</th><th>Doctor</th><th>Requested</th><th>Status</th><th></th></tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let r of results">
+      <td>{{ r.mmrCode }}</td>
+      <td>{{ r.patientName }}</td>
+      <td>{{ r.age }} / {{ r.gender }}</td>
+      <td>{{ r.testName }}</td>
+      <td>{{ r.doctorName }}</td>
+      <td>{{ r.requestDate | date: 'short' }}</td>
+      <td><span class="badge badge-warning">{{ r.status }}</span></td>
+      <td><a class="btn btn-sm btn-primary" [routerLink]="['/lab/results', r.requestItemId]">Enter Result</a></td>
+    </tr>
+    <tr *ngIf="results.length === 0"><td colspan="8" class="text-center text-muted">No pending tests.</td></tr>
+  </tbody>
+</table>

@@ -1,0 +1,208 @@
+<h3>Appointments</h3>
+
+<div class="card mb-3">
+  <div class="card-body">
+    <div class="form-row">
+      <div class="form-group col-md-2">
+        <label>Department</label>
+        <select class="form-control" [(ngModel)]="filter.departmentId">
+          <option value="">All</option>
+          <option *ngFor="let d of departments" [value]="d.departmentId">{{ d.departmentName }}</option>
+        </select>
+      </div>
+      <div class="form-group col-md-2">
+        <label>Doctor</label>
+        <select class="form-control" [(ngModel)]="filter.doctorId">
+          <option value="">All</option>
+          <option *ngFor="let d of doctors" [value]="d.doctorId">{{ d.fullName }}</option>
+        </select>
+      </div>
+      <div class="form-group col-md-2">
+        <label>Patient Code</label>
+        <input class="form-control" [(ngModel)]="filter.patientCode" placeholder="e.g. MMR000123"
+               [class.is-invalid]="patientCodeError" />
+        <small class="text-danger d-block" *ngIf="patientCodeError">{{ patientCodeError }}</small>
+      </div>
+      <div class="form-group col-md-2">
+        <label>From</label>
+        <input type="date" class="form-control" [(ngModel)]="filter.fromDate" />
+      </div>
+      <div class="form-group col-md-2">
+        <label>To</label>
+        <input type="date" class="form-control" [(ngModel)]="filter.toDate" />
+      </div>
+      <div class="form-group col-md-2">
+        <label class="d-block invisible">Filter</label>
+        <button class="btn btn-success btn-block" (click)="load()">Filter</button>
+      </div>
+    </div>
+    <button class="btn btn-primary" (click)="openBookingForm()">+ Book Appointment</button>
+  </div>
+</div>
+
+<div class="alert alert-info" *ngIf="loading">Loading...</div>
+<div class="alert alert-danger" *ngIf="error">{{ error }}</div>
+<div class="alert alert-success" *ngIf="message">{{ message }}</div>
+
+<!-- Booking form now shows right here, at the top, instead of below the table -->
+<div class="card mb-3" *ngIf="showForm && createData">
+  <div class="card-body">
+    <h5>Book Appointment</h5>
+    <form (ngSubmit)="book()">
+
+      <!-- Patient: readonly summary if we already know who it is, otherwise a search -->
+      <div class="form-group" *ngIf="lockedPatient">
+        <label>Patient</label>
+        <div class="card bg-light">
+          <div class="card-body py-2">
+            <div class="row">
+              <div class="col-md-3"><strong>MMR</strong><div>{{ lockedPatient.patientCode }}</div></div>
+              <div class="col-md-3"><strong>Name</strong><div>{{ lockedPatient.fullName }}</div></div>
+              <div class="col-md-3"><strong>Age / Gender</strong><div>{{ lockedPatient.age ?? '—' }} / {{ lockedPatient.gender }}</div></div>
+              <div class="col-md-3"><strong>Mobile</strong><div>{{ lockedPatient.mobileNumber }}</div></div>
+            </div>
+            <button
+              type="button"
+              class="btn btn-link btn-sm p-0 mt-2"
+              *ngIf="!patientLockedFromNav"
+              (click)="changePatient()">
+              Change patient
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group" *ngIf="!lockedPatient">
+        <label>Patient *</label>
+        <div class="d-flex" style="gap: 10px;">
+          <select class="form-control" style="max-width: 150px;" [(ngModel)]="patientSearchBy" name="patientSearchBy">
+            <option value="MMR">MMR Code</option>
+            <option value="Name">Name</option>
+            <option value="Mobile">Mobile</option>
+          </select>
+          <input
+            type="text"
+            class="form-control flex-grow-1"
+            placeholder="Search by name, MMR code, or mobile"
+            [(ngModel)]="patientSearchText"
+            name="patientSearchText"
+            (keyup.enter)="searchPatientForBooking()" />
+          <button type="button" class="btn btn-success" style="white-space: nowrap;" [disabled]="patientSearching" (click)="searchPatientForBooking()">
+            {{ patientSearching ? 'Searching...' : 'Search' }}
+          </button>
+        </div>
+
+        <div class="text-danger mt-2" *ngIf="patientSearchError">{{ patientSearchError }}</div>
+
+        <table class="table table-sm table-bordered bg-white mt-2" *ngIf="patientSearchResults.length">
+          <thead class="thead-light">
+            <tr><th>MMR</th><th>Name</th><th>Age/Gender</th><th>Mobile</th><th></th></tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let p of patientSearchResults">
+              <td>{{ p.patientCode }}</td>
+              <td>{{ p.fullName }}</td>
+              <td>{{ p.age ?? '-' }} / {{ p.gender }}</td>
+              <td>{{ p.mobileNumber }}</td>
+              <td><button type="button" class="btn btn-sm btn-primary" (click)="selectPatientForBooking(p)">Select</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group col-md-6">
+          <label>Department *</label>
+          <select class="form-control" [(ngModel)]="filterDepartmentId" name="departmentId" required
+                  #departmentField="ngModel" (ngModelChange)="onDepartmentChange()">
+            <option [ngValue]="null">Select department</option>
+            <option *ngFor="let d of departments" [ngValue]="d.departmentId">{{ d.departmentName }}</option>
+          </select>
+          <small class="text-danger" *ngIf="departmentField.touched && departmentField.invalid">
+            Please select a department
+          </small>
+        </div>
+        <div class="form-group col-md-6">
+          <label>Doctor *</label>
+          <select class="form-control" [(ngModel)]="newAppointment.doctorId" name="doctorId" required
+                  #doctorField="ngModel" [disabled]="!filterDepartmentId" (ngModelChange)="onDoctorOrDateChange()">
+            <option [ngValue]="null">Select doctor</option>
+            <option *ngFor="let d of doctorsInDepartment" [ngValue]="d.doctorId">{{ d.fullName }}</option>
+          </select>
+          <small class="text-danger" *ngIf="doctorField.touched && doctorField.invalid">
+            Please select a doctor
+          </small>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Date *</label>
+        <input type="date" class="form-control" style="max-width: 220px;"
+               [(ngModel)]="newAppointment.appointmentDate" name="appointmentDate"
+               [min]="today" [max]="maxDate" required (ngModelChange)="onDoctorOrDateChange()" />
+        <small class="text-muted">Only today or tomorrow can be booked.</small>
+      </div>
+
+      <div class="form-group" *ngIf="newAppointment.doctorId && newAppointment.appointmentDate">
+        <label>Available Time *</label>
+        <div>
+          <button
+            type="button"
+            *ngFor="let slot of availableSlots"
+            class="btn btn-sm mr-1 mb-1"
+            [class.btn-primary]="newAppointment.appointmentTime === slot"
+            [class.btn-outline-secondary]="newAppointment.appointmentTime !== slot"
+            (click)="pickSlot(slot)">
+            {{ slot }}
+          </button>
+        </div>
+        <p class="text-muted mb-0" *ngIf="availableSlots.length === 0">No slots available for this doctor on this date.</p>
+      </div>
+
+      <button type="submit" class="btn btn-success mr-2 mt-3" [disabled]="!newAppointment.appointmentTime || !newAppointment.patientId || submitting">
+        <i class="fa mr-1" [ngClass]="submitting ? 'fa-spinner fa-spin' : 'fa-calendar-check-o'"></i>
+        {{ submitting ? 'Booking...' : 'Book' }}
+      </button>
+      <button type="button" class="btn btn-outline-secondary mt-3" [disabled]="submitting" (click)="showForm = false">Cancel</button>
+    </form>
+  </div>
+</div>
+
+<!-- Booking success, with token -->
+<div class="card border-success mb-3" *ngIf="bookingResult">
+  <div class="card-body">
+    <h5 class="text-success mb-3">
+      <i class="fa fa-check-circle mr-1"></i>
+      Booked Successfully
+    </h5>
+    <div class="row">
+      <div class="col-md-3"><strong>Doctor</strong><div>{{ bookingResult.doctorName }}</div></div>
+      <div class="col-md-3"><strong>Token</strong><div class="h4">{{ bookingResult.tokenNumber }}</div></div>
+      <div class="col-md-3"><strong>Date</strong><div>{{ bookingResult.appointmentDate | date: 'mediumDate' }}</div></div>
+      <div class="col-md-3"><strong>Time</strong><div>{{ bookingResult.appointmentTime }}</div></div>
+    </div>
+    <button class="btn btn-success mt-3 mr-2" (click)="goToBilling()">
+      <i class="fa fa-arrow-right mr-1"></i>
+      Go to Billing
+    </button>
+    <button class="btn btn-outline-secondary mt-3" (click)="dismissBookingResult()">Close</button>
+  </div>
+</div>
+
+<table class="table table-bordered bg-white" *ngIf="!loading">
+  <thead class="thead-light">
+    <tr><th>Token</th><th>MMR</th><th>Patient</th><th>Doctor</th><th>Time</th><th>Status</th><th></th></tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let a of appointments">
+      <td>{{ a.tokenNumber }}</td>
+      <td>{{ a.patientCode }}</td>
+      <td>{{ a.patientName }}</td>
+      <td>{{ a.doctorName }} <small class="text-muted">({{ a.departmentName }})</small></td>
+      <td>{{ a.appointmentDate | date: 'mediumDate' }} {{ a.appointmentTime }}</td>
+      <td><span class="badge" [class.badge-success]="a.status === 'Completed'" [class.badge-warning]="a.status === 'Scheduled'" [class.badge-danger]="a.status === 'Cancelled'">{{ a.status }}</span></td>
+      <td><button class="btn btn-sm btn-outline-danger" *ngIf="a.status === 'Scheduled'" (click)="cancel(a.appointmentId)">Cancel</button></td>
+    </tr>
+    <tr *ngIf="appointments.length === 0"><td colspan="7" class="text-center text-muted">No appointments found.</td></tr>
+  </tbody>
+</table>

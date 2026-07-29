@@ -1,0 +1,125 @@
+<h3>Bills</h3>
+
+<button class="btn btn-primary mb-3" (click)="openCreateForm()">+ New Bill</button>
+
+<div class="alert alert-info" *ngIf="loading">Loading...</div>
+<div class="alert alert-danger" *ngIf="error">{{ error }}</div>
+<div class="alert alert-success" *ngIf="message">{{ message }}</div>
+
+<!-- Create Bill / preview form now shows right here, at the top -->
+<div class="card mb-3" *ngIf="showForm">
+  <div class="card-body">
+    <h5>Create Bill from Appointment</h5>
+    <div class="form-inline mb-3">
+      <input type="number" class="form-control mr-2" placeholder="Appointment ID" min="1" [(ngModel)]="appointmentId" />
+      <button class="btn btn-outline-primary" (click)="loadPreview()">Load</button>
+    </div>
+
+    <div *ngIf="billPreview">
+      <p><strong>Patient:</strong> {{ billPreview.patientName }} ({{ billPreview.patientCode }})</p>
+      <p><strong>Doctor:</strong> {{ billPreview.doctorName }}</p>
+      <p><strong>Appointment #:</strong> {{ billPreview.appointmentNumber }}</p>
+      <p><strong>Consultation Fee:</strong> &#8377;{{ billPreview.consultationFee }}</p>
+
+      <div class="form-row">
+        <div class="form-group col-md-4">
+          <label>Payment Method</label>
+          <select class="form-control" [(ngModel)]="paymentMethod">
+            <option value="Cash">Cash</option>
+            <option value="Card">Card</option>
+            <option value="UPI">UPI</option>
+          </select>
+        </div>
+        <div class="form-group col-md-4">
+          <label>Amount Received</label>
+          <input type="number" class="form-control" min="0" [max]="billPreview.consultationFee"
+                 [(ngModel)]="amountReceived" />
+        </div>
+      </div>
+
+      <button class="btn btn-success mr-2" [disabled]="submitting" (click)="create()">
+        <i class="fa mr-1" [ngClass]="submitting ? 'fa-spinner fa-spin' : 'fa-check'"></i>
+        {{ submitting ? 'Generating...' : 'Generate Bill' }}
+      </button>
+      <button class="btn btn-outline-secondary" [disabled]="submitting" (click)="showForm = false">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div class="card border-success mb-3" *ngIf="createdBill">
+  <div class="card-body">
+    <h5 class="text-success mb-3">
+      <i class="fa fa-check-circle mr-1"></i>
+      Bill Generated Successfully
+    </h5>
+    <p class="mb-1"><strong>Bill #</strong> {{ createdBill.billId }}</p>
+    <p class="mb-3"><strong>Total Amount</strong> &#8377;{{ createdBill.totalAmount }}</p>
+    <button class="btn btn-success mr-2" (click)="printBill(createdBill.billId)">
+      <i class="fa fa-print mr-1"></i>
+      Print / Download PDF
+    </button>
+    <button class="btn btn-outline-secondary" (click)="dismissCreatedBill()">Close</button>
+  </div>
+</div>
+
+<!-- Selected bill detail view also shows here, above the table -->
+<div class="card mb-3" *ngIf="selectedBill">
+  <div class="card-body">
+    <button class="btn btn-sm btn-outline-secondary mb-2 mr-2" (click)="selectedBill = null">Close</button>
+    <button class="btn btn-sm btn-outline-success mb-2" (click)="printBill(selectedBill.billId)">
+      <i class="fa fa-print mr-1"></i>
+      Print / Download PDF
+    </button>
+    <h5>Bill #{{ selectedBill.billId }} - {{ selectedBill.patientName }} ({{ selectedBill.patientCode }})</h5>
+    <p><strong>Doctor:</strong> {{ selectedBill.doctorName }} &middot; <strong>Status:</strong> {{ selectedBill.status }}</p>
+
+    <table class="table table-sm table-bordered" *ngIf="selectedBill.items?.length">
+      <thead><tr><th>Item</th><th>Amount</th></tr></thead>
+      <tbody><tr *ngFor="let i of selectedBill.items"><td>{{ i.description }}</td><td>&#8377;{{ i.amount }}</td></tr></tbody>
+    </table>
+
+    <p><strong>Total: &#8377;{{ selectedBill.totalAmount }}</strong></p>
+
+    <h6>Payments</h6>
+    <table class="table table-sm table-bordered" *ngIf="selectedBill.payments?.length">
+      <thead><tr><th>Amount</th><th>Method</th><th>Date</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr *ngFor="let p of selectedBill.payments">
+          <td>&#8377;{{ p.amount }}</td><td>{{ p.paymentMethod }}</td><td>{{ p.paymentDate | date: 'short' }}</td><td>{{ p.paymentStatus }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="form-inline mt-2" *ngIf="selectedBill.status !== 'Paid'">
+      <select class="form-control mr-2" #methodSelect>
+        <option value="Cash">Cash</option>
+        <option value="Card">Card</option>
+        <option value="UPI">UPI</option>
+      </select>
+      <button class="btn btn-success" (click)="receivePayment(selectedBill.billId, methodSelect.value)">Receive Remaining Payment</button>
+    </div>
+  </div>
+</div>
+
+<table class="table table-bordered bg-white" *ngIf="!loading">
+  <thead class="thead-light">
+    <tr><th>Bill #</th><th>Patient</th><th>Doctor</th><th>Date</th><th>Amount</th><th>Status</th><th></th></tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let b of bills">
+      <td>{{ b.billId }}</td>
+      <td>{{ b.patientName }} ({{ b.patientCode }})</td>
+      <td>{{ b.doctorName }}</td>
+      <td>{{ b.billDate | date: 'mediumDate' }}</td>
+      <td>&#8377;{{ b.totalAmount }}</td>
+      <td><span class="badge" [class.badge-success]="b.status === 'Paid'" [class.badge-warning]="b.status !== 'Paid'">{{ b.status }}</span></td>
+      <td>
+        <button class="btn btn-sm btn-outline-primary mr-1" (click)="view(b.billId)">View</button>
+        <button class="btn btn-sm btn-outline-success" (click)="printBill(b.billId)">
+          <i class="fa fa-print"></i>
+        </button>
+      </td>
+    </tr>
+    <tr *ngIf="bills.length === 0"><td colspan="7" class="text-center text-muted">No bills found.</td></tr>
+  </tbody>
+</table>

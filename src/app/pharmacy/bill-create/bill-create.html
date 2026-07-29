@@ -1,0 +1,124 @@
+<div class="ph-page">
+  <div class="d-flex align-items-center gap-3 mb-4">
+    <a routerLink="/pharmacy/bills" class="btn-outline-cms btn-sm-cms">
+      <i class="fa-solid fa-arrow-left"></i> Back
+    </a>
+    <div>
+      <div class="page-title">Create Pharmacy Bill</div>
+      <div class="page-sub">Add medicines and generate bill for patient</div>
+    </div>
+  </div>
+
+  <div *ngIf="errorMsg" class="alert alert-danger alert-dismissible fade show">
+    <i class="fa-solid fa-circle-exclamation me-2"></i>{{ errorMsg }}
+    <button type="button" class="btn-close" (click)="errorMsg=''"></button>
+  </div>
+
+  <div class="cms-card">
+    <div class="cms-card-header">
+      <span class="cms-card-title"><i class="fa-solid fa-receipt"></i> New Bill</span>
+    </div>
+    <div class="cms-card-body">
+
+      <div *ngIf="loading" class="text-center py-4">
+        <div class="spinner-border text-primary"></div>
+      </div>
+
+      <ng-container *ngIf="!loading">
+        <!-- Patient -->
+        <div class="row g-3 mb-3">
+          <div class="col-md-6">
+            <label class="form-label-cms">Patient <span class="req">*</span></label>
+            <select class="form-control-cms" [(ngModel)]="selectedPatientId">
+              <option [value]="0" disabled>-- Select Patient --</option>
+              <option *ngFor="let p of patients" [value]="p.patientId">
+                {{ p.patientCode }} — {{ p.fullName }}
+              </option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Medicine Picker -->
+        <div style="border:1.5px solid #e2e8f0;border-radius:10px;padding:16px;background:#f8fafc;margin-bottom:20px;">
+          <div class="row g-3 align-items-end">
+            <div class="col-md-5">
+              <label class="form-label-cms">Medicine</label>
+              <select class="form-control-cms" [(ngModel)]="selectedMedicineId">
+                <option [value]="0" disabled>-- Select Medicine --</option>
+                <option *ngFor="let m of medicines" [value]="m.medicineId">
+                  {{ m.medicineName }} ({{ m.medicineCode }}) — ₹{{ m.unitPrice | number:'1.2-2' }}
+                </option>
+              </select>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label-cms">Quantity</label>
+              <input type="number" min="1" [(ngModel)]="selectedQty" class="form-control-cms" />
+            </div>
+            <div class="col-md-3">
+              <button type="button" class="btn-primary-cms" style="width:100%;" (click)="addItem()">
+                <i class="fa-solid fa-plus"></i> Add Item
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bill Items table -->
+        <div class="cms-card mb-3" style="border-color:#e2e8f0;">
+          <div class="cms-card-header">
+            <span style="font-size:13px;font-weight:600;color:#374151;">Bill Items</span>
+            <span class="badge-cms badge-gray">{{ billItems.length }} item(s)</span>
+          </div>
+          <div style="overflow-x:auto;">
+            <table class="cms-table">
+              <thead>
+                <tr>
+                  <th>S.No</th>
+                  <th>Medicine</th>
+                  <th>Qty</th>
+                  <th>Unit Price</th>
+                  <th>Amount</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let item of billItems; let i = index">
+                  <td style="color:#94a3b8;">{{ i + 1 }}</td>
+                  <td style="font-weight:600;">{{ item.medicineName }}</td>
+                  <td>{{ item.quantity }}</td>
+                  <td>₹{{ item.unitPrice | number:'1.2-2' }}</td>
+                  <td style="font-weight:700;">₹{{ item.amount | number:'1.2-2' }}</td>
+                  <td>
+                    <button type="button" class="btn-danger-cms btn-sm-cms" (click)="removeItem(i)">
+                      <i class="fa-solid fa-trash"></i>
+                    </button>
+                  </td>
+                </tr>
+                <tr *ngIf="billItems.length > 0" style="background:#f8fafc;font-weight:700;">
+                  <td colspan="4" style="text-align:right;padding:11px 14px;">TOTAL</td>
+                  <td style="font-weight:700;color:#198754;padding:11px 14px;">₹{{ totalAmount | number:'1.2-2' }}</td>
+                  <td></td>
+                </tr>
+                <tr *ngIf="billItems.length === 0">
+                  <td colspan="6" style="text-align:center;padding:24px;color:#94a3b8;">
+                    No medicines added yet
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Submit -->
+        <div class="d-flex gap-2">
+          <button class="btn-primary-cms" (click)="onSubmit()"
+                  [disabled]="submitting || billItems.length === 0">
+            <span *ngIf="submitting" class="spinner-border spinner-border-sm"></span>
+            <i *ngIf="!submitting" class="fa-solid fa-floppy-disk"></i>
+            {{ submitting ? 'Creating…' : 'Create Bill' }}
+          </button>
+          <a routerLink="/pharmacy/bills" class="btn-outline-cms">Cancel</a>
+        </div>
+      </ng-container>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,150 @@
+<div class="ph-page">
+  <div class="d-flex align-items-center gap-3 mb-4">
+    <a routerLink="/pharmacy/medicine" class="btn-outline-cms btn-sm-cms">
+      <i class="fa-solid fa-arrow-left"></i> Back
+    </a>
+    <div>
+      <div class="page-title">Edit Medicine</div>
+      <div class="page-sub">Update medicine details</div>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="text-center py-5">
+    <div class="spinner-border text-primary"></div>
+  </div>
+
+  <div class="cms-card" style="max-width:680px;" *ngIf="!loading">
+    <div class="cms-card-header">
+      <span class="cms-card-title"><i class="fa-solid fa-pen"></i> Edit Medicine Info</span>
+    </div>
+    <div class="cms-card-body">
+      <div *ngIf="errorMsg" class="alert alert-danger alert-dismissible">
+        <i class="fa-solid fa-circle-exclamation me-2"></i>{{ errorMsg }}
+        <button type="button" class="btn-close" (click)="errorMsg=''"></button>
+      </div>
+      <div *ngIf="successMsg" class="alert alert-success">
+        <i class="fa-solid fa-circle-check me-2"></i>{{ successMsg }}
+      </div>
+
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" autocomplete="off">
+        <div class="row g-3">
+
+          <!-- Medicine Code (readonly) -->
+          <div class="col-md-6">
+            <label class="form-label-cms">Medicine Code</label>
+            <input formControlName="medicineCode" type="text" class="form-control-cms" readonly
+                   style="background:#f8fafc;color:#64748b;" />
+            <div style="font-size:11px;color:#94a3b8;margin-top:4px;">
+              System-assigned code — cannot be changed.
+            </div>
+          </div>
+
+          <!-- Medicine Name -->
+          <div class="col-md-6">
+            <label class="form-label-cms">Medicine Name <span class="req">*</span></label>
+            <input formControlName="medicineName" type="text" class="form-control-cms"
+                   maxlength="100"
+                   [class.is-invalid]="f('medicineName')?.touched && f('medicineName')?.invalid" />
+            <div class="invalid-feedback">
+              <span *ngIf="f('medicineName')?.errors?.['required']">Medicine Name is required.</span>
+              <span *ngIf="f('medicineName')?.errors?.['minlength']">Minimum 2 characters required.</span>
+              <span *ngIf="f('medicineName')?.errors?.['maxlength']">Maximum 100 characters allowed.</span>
+              <span *ngIf="f('medicineName')?.errors?.['pattern']">Only letters, numbers, spaces and - . ( ) / & allowed.</span>
+            </div>
+          </div>
+
+          <!-- Generic Name -->
+          <div class="col-md-6">
+            <label class="form-label-cms">Generic Name</label>
+            <input formControlName="genericName" type="text" class="form-control-cms"
+                   maxlength="100"
+                   [class.is-invalid]="f('genericName')?.touched && f('genericName')?.invalid" />
+            <div class="invalid-feedback">
+              <span *ngIf="f('genericName')?.errors?.['maxlength']">Maximum 100 characters allowed.</span>
+              <span *ngIf="f('genericName')?.errors?.['pattern']">Only letters, numbers, spaces and hyphens allowed.</span>
+            </div>
+          </div>
+
+          <!-- Unit -->
+          <div class="col-md-6">
+            <label class="form-label-cms">Unit</label>
+            <input formControlName="unit" type="text" class="form-control-cms"
+                   maxlength="50"
+                   [class.is-invalid]="f('unit')?.touched && f('unit')?.invalid" />
+            <div class="invalid-feedback">
+              <span *ngIf="f('unit')?.errors?.['maxlength']">Maximum 50 characters allowed.</span>
+              <span *ngIf="f('unit')?.errors?.['pattern']">Only letters, numbers, spaces and . / allowed.</span>
+            </div>
+          </div>
+
+          <!-- Category -->
+          <div class="col-md-6">
+            <label class="form-label-cms">Category <span class="req">*</span></label>
+            <select formControlName="categoryId" class="form-control-cms"
+                    [class.is-invalid]="f('categoryId')?.touched && f('categoryId')?.invalid">
+              <option [value]="0" disabled>-- Select Category --</option>
+              <option *ngFor="let cat of categories" [value]="cat.categoryId">{{ cat.categoryName }}</option>
+            </select>
+            <div class="invalid-feedback">Category is required.</div>
+          </div>
+
+          <!-- Manufacturer -->
+          <div class="col-md-6">
+            <label class="form-label-cms">Manufacturer <span class="req">*</span></label>
+            <select formControlName="manufacturerId" class="form-control-cms"
+                    [class.is-invalid]="f('manufacturerId')?.touched && f('manufacturerId')?.invalid">
+              <option [value]="0" disabled>-- Select Manufacturer --</option>
+              <option *ngFor="let m of manufacturers" [value]="m.manufacturerId">{{ m.manufacturerName }}</option>
+            </select>
+            <div class="invalid-feedback">Manufacturer is required.</div>
+          </div>
+
+          <!-- Unit Price -->
+          <div class="col-md-6">
+            <label class="form-label-cms">Unit Price (₹) <span class="req">*</span></label>
+            <input formControlName="unitPrice" type="number" step="0.01" min="0.01" max="99999.99"
+                   class="form-control-cms"
+                   [class.is-invalid]="f('unitPrice')?.touched && f('unitPrice')?.invalid" />
+            <div class="invalid-feedback">
+              <span *ngIf="f('unitPrice')?.errors?.['required']">Unit price is required.</span>
+              <span *ngIf="f('unitPrice')?.errors?.['min']">Must be at least ₹0.01.</span>
+              <span *ngIf="f('unitPrice')?.errors?.['max']">Cannot exceed ₹99,999.99.</span>
+            </div>
+          </div>
+
+          <!-- Reorder Level -->
+          <div class="col-md-6">
+            <label class="form-label-cms">Reorder Level</label>
+            <input formControlName="reorderLevel" type="number" min="0" max="9999" step="1"
+                   class="form-control-cms"
+                   [class.is-invalid]="f('reorderLevel')?.touched && f('reorderLevel')?.invalid" />
+            <div class="invalid-feedback">
+              <span *ngIf="f('reorderLevel')?.errors?.['min']">Minimum value is 0.</span>
+              <span *ngIf="f('reorderLevel')?.errors?.['max']">Cannot exceed 9,999.</span>
+            </div>
+            <div style="font-size:11px;color:#94a3b8;margin-top:4px;">
+              Alert threshold when stock falls to this level. Enter 0 to disable.
+            </div>
+          </div>
+
+          <!-- Active -->
+          <div class="col-12">
+            <div class="form-check">
+              <input formControlName="isActive" type="checkbox" class="form-check-input" id="isActive" />
+              <label class="form-check-label" for="isActive" style="font-size:13px;font-weight:500;">Active</label>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-4 d-flex gap-2">
+          <button type="submit" class="btn-primary-cms" [disabled]="submitting">
+            <span *ngIf="submitting" class="spinner-border spinner-border-sm"></span>
+            <i *ngIf="!submitting" class="fa-solid fa-floppy-disk"></i>
+            {{ submitting ? 'Saving…' : 'Update Medicine' }}
+          </button>
+          <a routerLink="/pharmacy/medicine" class="btn-outline-cms">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,90 @@
+<!-- Loading / Error states -->
+<div *ngIf="loading" style="display:flex;align-items:center;justify-content:center;height:100vh;">
+  <div class="spinner-border text-success"></div>
+</div>
+<div *ngIf="error" style="padding:40px;text-align:center;color:#dc3545;font-size:16px;">
+  <i class="fa-solid fa-circle-xmark" style="font-size:40px;display:block;margin-bottom:12px;"></i>
+  {{ error }}
+</div>
+
+<!-- Invoice — full standalone layout, no sidebar/navbar -->
+<ng-container *ngIf="!loading && bill">
+
+  <!-- Actions bar (hidden on print) -->
+  <div class="inv-actions no-print">
+    <button class="inv-btn" (click)="print()">
+      <i class="fa-solid fa-print"></i> Print
+    </button>
+    <button class="inv-btn inv-btn-outline" (click)="downloadPdf()">
+      <i class="fa-solid fa-file-pdf"></i> Download PDF
+    </button>
+    <a [routerLink]="['/pharmacy/bills', bill.billId]"
+       class="inv-btn inv-btn-outline">
+      <i class="fa-solid fa-arrow-left"></i> Back
+    </a>
+  </div>
+
+  <!-- Invoice body -->
+  <div class="invoice">
+
+    <!-- Header -->
+    <div class="inv-head">
+      <div>
+        <div class="inv-brand">Infinity Clinic</div>
+        <div class="inv-brand-sub">Pharmacy Department</div>
+      </div>
+      <div style="text-align:right;">
+        <div class="inv-doc-title">INVOICE</div>
+        <div class="inv-meta">Bill No: {{ billNo(bill.billId) }}</div>
+        <div class="inv-meta">Date: {{ bill.billDate | date:'dd MMM yyyy hh:mm a' }}</div>
+        <div class="inv-meta">
+          Status:
+          <span class="inv-status"
+                [class.inv-status-paid]="bill.status !== 'Cancelled'"
+                [class.inv-status-cancelled]="bill.status === 'Cancelled'">
+            {{ bill.status || 'Paid' }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Billed To -->
+    <div class="inv-parties">
+      <div class="inv-label">Billed To</div>
+      <div class="inv-name">{{ bill.patientName || 'Patient #' + bill.patientId }}</div>
+      <div *ngIf="bill.patientCode" class="inv-patient-code">Patient Code: {{ bill.patientCode }}</div>
+    </div>
+
+    <!-- Items Table -->
+    <table class="inv-table">
+      <thead>
+        <tr>
+          <th style="width:40px;">#</th>
+          <th>Medicine</th>
+          <th class="text-center" style="width:60px;">Qty</th>
+          <th class="text-end" style="width:100px;">Unit Price</th>
+          <th class="text-end" style="width:110px;">Amount</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of items; let i = index">
+          <td>{{ i + 1 }}</td>
+          <td>{{ item.medicineName }}</td>
+          <td class="text-center">{{ item.quantity }}</td>
+          <td class="text-end">₹{{ item.unitPrice | number:'1.2-2' }}</td>
+          <td class="text-end">₹{{ item.amount | number:'1.2-2' }}</td>
+        </tr>
+        <tr class="inv-total-row">
+          <td colspan="4" class="text-end">Total Amount</td>
+          <td class="text-end inv-total-amt">₹{{ totalAmount | number:'1.2-2' }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Footer -->
+    <div class="inv-footer">
+      This is a computer-generated invoice and does not require a signature.<br>
+      Infinity Clinic Pharmacy &middot; Thank you for your visit.
+    </div>
+  </div>
+</ng-container>

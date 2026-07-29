@@ -1,0 +1,20 @@
+@import '../doctor-shared';
+@include doctor-page-layout;
+
+.stat-card-total,
+.stat-card-pending,
+.stat-card-done {
+  border: none;
+  border-radius: 14px;
+  box-shadow: 0 4px 20px rgba(18, 63, 55, 0.14);
+}
+
+.stat-card-total {
+  background: linear-gradient(135deg, $doctor-brand, $doctor-brand-light);
+}
+.stat-card-pending {
+  background: linear-gradient(135deg, #b8860b, #d4a017);
+}
+.stat-card-done {
+  background: linear-gradient(135deg, $doctor-brand-accent-dark, $doctor-brand-accent);
+}

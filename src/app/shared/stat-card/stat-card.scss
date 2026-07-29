@@ -1,0 +1,21 @@
+.stat-card {
+  height: 100%;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+}
+
+.stat-card__label {
+  margin-bottom: 0.25rem;
+  opacity: 0.9;
+}
+
+.stat-card__value {
+  font-size: 2.5rem;
+  font-weight: 600;
+  margin-bottom: 0;
+  line-height: 1.1;
+}

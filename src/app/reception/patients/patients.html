@@ -1,0 +1,258 @@
+<h3>Patients</h3>
+
+<div class="alert alert-info" *ngIf="loading">Loading...</div>
+<div class="alert alert-danger" *ngIf="error">{{ error }}</div>
+<div class="alert alert-success" *ngIf="message">{{ message }}</div>
+
+<div class="card mb-3">
+  <div class="card-body">
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h5 class="mb-0">Search patients</h5>
+      <button class="btn btn-primary" (click)="goToRegister()">+ New Patient</button>
+    </div>
+
+    <div class="d-flex" style="gap: 10px;">
+      <select class="form-control" style="max-width: 160px;" [(ngModel)]="searchBy">
+        <option value="MMR">MMR Code</option>
+        <option value="Name">Name</option>
+        <option value="Mobile">Mobile</option>
+      </select>
+      <input
+        type="text"
+        class="form-control flex-grow-1"
+        placeholder="Search by name, MMR code, or mobile"
+        [(ngModel)]="searchText"
+        (keyup.enter)="search()" />
+      <button class="btn btn-success" style="white-space: nowrap;" (click)="search()">Search</button>
+      <button class="btn btn-outline-secondary" style="white-space: nowrap;" (click)="clearSearch()">Clear</button>
+    </div>
+
+  </div>
+</div>
+
+<div class="table-responsive" *ngIf="!loading">
+  <table class="table table-bordered table-sm bg-white">
+    <thead class="thead-light">
+      <tr>
+        <th>MMR Code</th>
+        <th>Name</th>
+        <th>Gender</th>
+        <th>DOB</th>
+        <th>Age</th>
+        <th>Mobile</th>
+        <th *ngIf="columnVisibility.alternateMobile">Alt. Mobile</th>
+        <th *ngIf="columnVisibility.email">Email</th>
+        <th *ngIf="columnVisibility.bloodGroup">Blood Grp</th>
+        <th *ngIf="columnVisibility.aadhaarNumber">Aadhaar</th>
+        <th *ngIf="columnVisibility.address">Address</th>
+        <th *ngIf="columnVisibility.city">City</th>
+        <th *ngIf="columnVisibility.state">State</th>
+        <th *ngIf="columnVisibility.pincode">Pincode</th>
+        <th *ngIf="columnVisibility.emergencyContact">Emergency Contact</th>
+        <th>Registered On</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let p of patients">
+        <td>{{ p.patientCode }}</td>
+        <td>{{ p.fullName }}</td>
+        <td>{{ p.gender }}</td>
+        <td>{{ p.dob ? (p.dob | date: 'dd-MM-yyyy') : '-' }}</td>
+        <td>{{ p.age ?? '-' }}</td>
+        <td>{{ p.mobileNumber }}</td>
+        <td *ngIf="columnVisibility.alternateMobile">{{ p.alternateMobile || '-' }}</td>
+        <td *ngIf="columnVisibility.email">{{ p.email || '-' }}</td>
+        <td *ngIf="columnVisibility.bloodGroup">{{ p.bloodGroup || '-' }}</td>
+        <td *ngIf="columnVisibility.aadhaarNumber">{{ p.aadhaarNumber || '-' }}</td>
+        <td *ngIf="columnVisibility.address">{{ p.address || '-' }}</td>
+        <td *ngIf="columnVisibility.city">{{ p.city || '-' }}</td>
+        <td *ngIf="columnVisibility.state">{{ p.state || '-' }}</td>
+        <td *ngIf="columnVisibility.pincode">{{ p.pincode || '-' }}</td>
+        <td *ngIf="columnVisibility.emergencyContact">
+          <ng-container *ngIf="p.emergencyContactNumber; else noEmergency">
+            {{ p.emergencyContactNumber }}
+            <span *ngIf="p.emergencyContactName">&mdash; {{ p.emergencyContactName }}</span>
+            <span *ngIf="p.emergencyContactRelationship">({{ p.emergencyContactRelationship }})</span>
+          </ng-container>
+          <ng-template #noEmergency>-</ng-template>
+        </td>
+        <td>{{ p.registrationDate ? (p.registrationDate | date: 'dd-MM-yyyy') : '-' }}</td>
+        <td class="text-nowrap">
+          <button class="btn btn-sm btn-outline-primary mr-1" (click)="openEditForm(p)">Edit</button>
+          <button class="btn btn-sm btn-success" (click)="bookAppointment(p)">Book</button>
+        </td>
+      </tr>
+      <tr *ngIf="patients.length === 0"><td colspan="17" class="text-center text-muted">No patients found.</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="card mt-3" *ngIf="showForm">
+  <div class="card-body">
+    <h5>Edit Patient</h5>
+
+    <div class="form-group">
+      <label>MMR Number</label>
+      <input class="form-control" [value]="form.patientCode" readonly />
+    </div>
+
+    <form (ngSubmit)="save(patientEditForm)" #patientEditForm="ngForm">
+      <div class="form-row">
+        <div class="form-group col-md-6">
+          <label>Patient Name *</label>
+          <input class="form-control" [(ngModel)]="form.fullName" name="fullName" required minlength="2"
+                 pattern="^[A-Za-z ]+$" #fullName="ngModel" />
+          <small class="text-danger" *ngIf="fullName.touched && fullName.invalid">
+            Full name is required and should contain only letters and spaces
+          </small>
+        </div>
+        <div class="form-group col-md-3">
+          <label>Gender *</label>
+          <select class="form-control" [(ngModel)]="form.gender" name="gender" required #gender="ngModel">
+            <option value="">Select</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+            <option value="Other">Other</option>
+          </select>
+          <small class="text-danger" *ngIf="gender.touched && gender.invalid">Please select a gender</small>
+        </div>
+        <div class="form-group col-md-3">
+          <label>DOB</label>
+          <input type="date" class="form-control" [(ngModel)]="form.dob" name="dob" [max]="today"
+                 (ngModelChange)="onDobChange()" />
+          <small class="text-danger" *ngIf="form.dob && form.dob > today">
+            Date of birth cannot be in the future
+          </small>
+          <small class="text-danger" *ngIf="dobTooOld">
+            Please double-check this date - it's over 120 years ago
+          </small>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group col-md-3">
+          <label>Age</label>
+          <input type="text" class="form-control" [value]="age ?? ''" readonly placeholder="Auto" />
+        </div>
+        <div class="form-group col-md-3">
+          <label>Blood Group</label>
+          <select class="form-control" [(ngModel)]="form.bloodGroup" name="bloodGroup">
+            <option value="Unknown">Unknown</option>
+            <option value="A+">A+</option><option value="A-">A-</option>
+            <option value="B+">B+</option><option value="B-">B-</option>
+            <option value="AB+">AB+</option><option value="AB-">AB-</option>
+            <option value="O+">O+</option><option value="O-">O-</option>
+          </select>
+        </div>
+        <div class="form-group col-md-3">
+          <label>Mobile Number *</label>
+          <input class="form-control" [(ngModel)]="form.mobileNumber" name="mobileNumber" maxlength="10" required
+                 pattern="^[6-9][0-9]{9}$" #mobileNumber="ngModel" />
+          <small class="text-danger" *ngIf="mobileNumber.touched && mobileNumber.invalid">
+            Enter a valid 10-digit mobile number starting with 6-9
+          </small>
+        </div>
+        <div class="form-group col-md-3">
+          <label>Email</label>
+          <input type="email" class="form-control" [(ngModel)]="form.email" name="email" email
+                 #email="ngModel" />
+          <small class="text-danger" *ngIf="email.touched && email.invalid">Enter a valid email address</small>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group col-md-4">
+          <label>Alternate Mobile</label>
+          <input class="form-control" [(ngModel)]="form.alternateMobile" name="alternateMobile" maxlength="10"
+                 pattern="^[6-9][0-9]{9}$" #alternateMobile="ngModel" />
+          <small class="text-danger" *ngIf="alternateMobile.touched && alternateMobile.invalid">
+            Enter a valid 10-digit mobile number starting with 6-9
+          </small>
+          <small class="text-warning d-block"
+                 *ngIf="alternateMobile.touched && alternateMobile.valid && alternateMobileSameAsMobile">
+            This matches the Mobile Number above - is that intended?
+          </small>
+        </div>
+        <div class="form-group col-md-4">
+          <label>Aadhaar Number</label>
+          <input class="form-control" [(ngModel)]="form.aadhaarNumber" name="aadhaarNumber" maxlength="12"
+                 pattern="^[0-9]{12}$" #aadhaarNumber="ngModel" />
+          <small class="text-danger" *ngIf="aadhaarNumber.touched && aadhaarNumber.invalid">
+            Aadhaar number must be exactly 12 digits
+          </small>
+        </div>
+        <div class="form-group col-md-4">
+          <label>Emergency Contact Number</label>
+          <input class="form-control" [(ngModel)]="form.emergencyContactNumber" name="emergencyContactNumber" maxlength="10"
+                 pattern="^[6-9][0-9]{9}$" #emergencyContactNumber="ngModel" />
+          <small class="text-danger" *ngIf="emergencyContactNumber.touched && emergencyContactNumber.invalid">
+            Enter a valid 10-digit mobile number starting with 6-9
+          </small>
+          <small class="text-warning d-block"
+                 *ngIf="emergencyContactNumber.touched && emergencyContactNumber.valid && emergencyMobileSameAsMobile">
+            This matches the Mobile Number above - is that intended?
+          </small>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group col-md-4">
+          <label>Emergency Contact Name</label>
+          <input class="form-control" [(ngModel)]="form.emergencyContactName" name="emergencyContactName"
+                 pattern="^[A-Za-z ]*$" #emergencyContactName="ngModel" />
+          <small class="text-danger" *ngIf="emergencyContactName.touched && emergencyContactName.invalid">
+            Only letters and spaces are allowed
+          </small>
+        </div>
+        <div class="form-group col-md-4">
+          <label>Relationship</label>
+          <input class="form-control" [(ngModel)]="form.emergencyContactRelationship" name="emergencyContactRelationship"
+                 maxlength="50" #relationship="ngModel" />
+          <small class="text-danger" *ngIf="relationship.touched && relationship.invalid">
+            Relationship cannot exceed 50 characters
+          </small>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Address</label>
+        <textarea class="form-control" rows="2" [(ngModel)]="form.address" name="address"
+                  maxlength="250" #address="ngModel"></textarea>
+        <small class="text-danger" *ngIf="address.touched && address.invalid">
+          Address cannot exceed 250 characters
+        </small>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group col-md-4">
+          <label>City</label>
+          <input class="form-control" [(ngModel)]="form.city" name="city"
+                 pattern="^[A-Za-z ]*$" maxlength="100" #city="ngModel" />
+          <small class="text-danger" *ngIf="city.touched && city.invalid">
+            Only letters and spaces are allowed
+          </small>
+        </div>
+        <div class="form-group col-md-4">
+          <label>State</label>
+          <input class="form-control" [(ngModel)]="form.state" name="state"
+                 pattern="^[A-Za-z ]*$" maxlength="100" #state="ngModel" />
+          <small class="text-danger" *ngIf="state.touched && state.invalid">
+            Only letters and spaces are allowed
+          </small>
+        </div>
+        <div class="form-group col-md-4">
+          <label>Pincode</label>
+          <input class="form-control" [(ngModel)]="form.pincode" name="pincode" maxlength="6"
+                 pattern="^[0-9]{6}$" #pincode="ngModel" />
+          <small class="text-danger" *ngIf="pincode.touched && pincode.invalid">
+            Pincode must be exactly 6 digits
+          </small>
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-success mr-2">Save</button>
+      <button type="button" class="btn btn-outline-secondary" (click)="cancelForm()">Cancel</button>
+    </form>
+  </div>
+</div>

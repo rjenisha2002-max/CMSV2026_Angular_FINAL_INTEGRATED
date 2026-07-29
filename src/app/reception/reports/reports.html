@@ -1,0 +1,98 @@
+<h3>Reports</h3>
+
+<div class="card mb-3">
+  <div class="card-body">
+    <div class="form-row align-items-end">
+      <div class="form-group col-md-2">
+        <label>Report Type</label>
+        <select class="form-control" [(ngModel)]="filter.reportType">
+          <option value="Appointment">Appointment</option>
+          <option value="Registration">Registration</option>
+          <option value="Billing">Billing</option>
+        </select>
+      </div>
+      <div class="form-group col-md-2">
+        <label>From</label>
+        <input type="date" class="form-control" [(ngModel)]="filter.fromDate" />
+      </div>
+      <div class="form-group col-md-2">
+        <label>To</label>
+        <input type="date" class="form-control" [(ngModel)]="filter.toDate" />
+      </div>
+      <div class="form-group col-md-2">
+        <label>Department</label>
+        <select class="form-control" [(ngModel)]="filter.departmentId" (ngModelChange)="onDepartmentChange()">
+          <option value="">All</option>
+          <option *ngFor="let d of data?.departments" [value]="d.departmentId">{{ d.departmentName }}</option>
+        </select>
+      </div>
+      <div class="form-group col-md-2">
+        <label>Doctor</label>
+        <select class="form-control" [(ngModel)]="filter.doctorId">
+          <option value="">All</option>
+          <option *ngFor="let d of filteredDoctors" [value]="d.doctorId">{{ d.fullName }}</option>
+        </select>
+      </div>
+      <div class="form-group col-md-2">
+        <label>&nbsp;</label>
+        <div class="d-flex" style="gap: 8px;">
+          <button class="btn btn-success flex-grow-1" (click)="load()">Run Report</button>
+          <button class="btn btn-outline-secondary" title="Clear filters" (click)="clearFilters()">
+            <i class="fa fa-times"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="alert alert-info" *ngIf="loading">Loading...</div>
+<div class="alert alert-danger" *ngIf="error">{{ error }}</div>
+
+<div class="row mb-4" *ngIf="data && !loading">
+  <div class="col-md-2 mb-2"><div class="card text-white bg-info"><div class="card-body p-2"><small>Total Appts</small><p class="h4">{{ data.summary.totalAppointments }}</p></div></div></div>
+  <div class="col-md-2 mb-2"><div class="card text-white bg-success"><div class="card-body p-2"><small>Completed</small><p class="h4">{{ data.summary.completedAppointments }}</p></div></div></div>
+  <div class="col-md-2 mb-2"><div class="card text-white bg-warning"><div class="card-body p-2"><small>Pending</small><p class="h4">{{ data.summary.pendingAppointments }}</p></div></div></div>
+  <div class="col-md-2 mb-2"><div class="card text-white bg-danger"><div class="card-body p-2"><small>Cancelled</small><p class="h4">{{ data.summary.cancelledAppointments }}</p></div></div></div>
+  <div class="col-md-2 mb-2"><div class="card text-white bg-dark"><div class="card-body p-2"><small>Collection</small><p class="h5">&#8377;{{ data.summary.totalCollection }}</p></div></div></div>
+  <div class="col-md-2 mb-2"><div class="card text-white bg-secondary"><div class="card-body p-2"><small>Pending Coll.</small><p class="h5">&#8377;{{ data.summary.pendingCollection }}</p></div></div></div>
+</div>
+
+<div *ngIf="data && !loading">
+  <div *ngIf="filter.reportType === 'Appointment'">
+    <h5>Appointments ({{ data.appointments.length }})</h5>
+    <table class="table table-bordered bg-white table-sm">
+      <thead class="thead-light"><tr><th>Appt #</th><th>Patient</th><th>Doctor</th><th>Date</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr *ngFor="let a of data.appointments">
+          <td>{{ a.appointmentNumber }}</td><td>{{ a.patientName }}</td><td>{{ a.doctorName }}</td>
+          <td>{{ a.appointmentDate | date: 'mediumDate' }}</td><td>{{ a.status }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div *ngIf="filter.reportType === 'Registration'">
+    <h5>New Registrations ({{ data.patients.length }})</h5>
+    <table class="table table-bordered bg-white table-sm">
+      <thead class="thead-light"><tr><th>Code</th><th>Name</th><th>Mobile</th><th>Registered</th></tr></thead>
+      <tbody>
+        <tr *ngFor="let p of data.patients">
+          <td>{{ p.patientCode }}</td><td>{{ p.fullName }}</td><td>{{ p.mobileNumber }}</td><td>{{ p.registrationDate | date: 'mediumDate' }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div *ngIf="filter.reportType === 'Billing'">
+    <h5>Bills ({{ data.bills.length }})</h5>
+    <table class="table table-bordered bg-white table-sm">
+      <thead class="thead-light"><tr><th>Bill #</th><th>Patient</th><th>Date</th><th>Amount</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr *ngFor="let b of data.bills">
+          <td>{{ b.billId }}</td><td>{{ b.patientName }}</td><td>{{ b.billDate | date: 'mediumDate' }}</td><td>&#8377;{{ b.totalAmount }}</td><td>{{ b.status }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

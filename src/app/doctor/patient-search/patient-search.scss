@@ -1,0 +1,6 @@
+@import '../doctor-shared';
+@include doctor-page-layout;
+
+.trend-abnormal {
+  border-left-color: #dc2626;
+}

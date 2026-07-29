@@ -1,0 +1,42 @@
+<div class="doctor-layout">
+  <app-doctor-sidebar></app-doctor-sidebar>
+
+  <div class="doctor-content">
+    <h3>Greetings from InfinityHospital {{ doctorName }}</h3>
+
+    <div class="alert alert-info" *ngIf="loading">Loading dashboard...</div>
+    <div class="alert alert-danger" *ngIf="error">{{ error }}</div>
+
+    <div class="row mt-3" *ngIf="!loading && !error">
+      <div class="col-md-4 mb-3">
+        <div class="card text-white stat-card-total">
+          <div class="card-body">
+            <h5 class="card-title">Today's Appointments</h5>
+            <p class="card-text display-4">{{ stats.todayTotal ?? 0 }}</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4 mb-3">
+        <div class="card text-white stat-card-pending">
+          <div class="card-body">
+            <h5 class="card-title">Pending Today</h5>
+            <p class="card-text display-4">{{ stats.todayPending ?? 0 }}</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4 mb-3">
+        <div class="card text-white stat-card-done">
+          <div class="card-body">
+            <h5 class="card-title">Consultations Done</h5>
+            <p class="card-text display-4">{{ stats.consultationsDone ?? 0 }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-3">
+      <a routerLink="/doctor/appointments" class="btn btn-theme mr-2">View Appointments</a>
+      <a routerLink="/doctor/patient-search" class="btn btn-theme-outline">Patient History &amp; Reports</a>
+    </div>
+  </div>
+</div>

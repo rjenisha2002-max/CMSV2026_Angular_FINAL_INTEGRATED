@@ -1,0 +1,96 @@
+<div class="layout-container">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+
+    <!-- <div class="logo">
+      <i class="fa fa-hospital-o hospital-icon"></i>
+
+      <h4>InfinityCoderzz</h4>
+
+      <p>Clinic Management System</p>
+    </div> -->
+
+    <ul class="menu">
+
+      <li>
+        <a routerLink="/reception/dashboard" routerLinkActive="active">
+          <i class="fa fa-home"></i>
+          Dashboard
+        </a>
+      </li>
+
+       <li>
+    <a routerLink="/reception/register-patient"
+       routerLinkActive="active">
+      <i class="fa fa-user-plus"></i>
+      Register Patient
+    </a>
+  </li>
+
+      <li>
+        <a routerLink="/reception/patients" routerLinkActive="active">
+          <i class="fa fa-user"></i>
+          Patients
+        </a>
+      </li>
+
+      <li>
+        <a routerLink="/reception/appointments" routerLinkActive="active">
+          <i class="fa fa-calendar"></i>
+          Appointments
+        </a>
+      </li>
+
+      <li>
+        <a routerLink="/reception/bills" routerLinkActive="active">
+          <i class="fa fa-money"></i>
+          Bills
+        </a>
+      </li>
+
+      <li>
+        <a routerLink="/reception/visits" routerLinkActive="active">
+          <i class="fa fa-stethoscope"></i>
+          Visits
+        </a>
+      </li>
+
+      <li>
+        <a routerLink="/reception/reports" routerLinkActive="active">
+          <i class="fa fa-bar-chart"></i>
+          Reports
+        </a>
+      </li>
+
+    </ul>
+
+    <div class="sidebar-footer">
+
+      <div class="user">
+
+        <i class="fa fa-user-circle"></i>
+
+        <div>
+          <strong>{{ authService.getFullName() }}</strong>
+          <br>
+          <small>Receptionist</small>
+        </div>
+
+      </div>
+
+    </div>
+
+  </aside>
+
+  <div class="main-content">
+
+    <div class="page-content">
+
+      <router-outlet></router-outlet>
+
+    </div>
+
+  </div>
+
+</div>

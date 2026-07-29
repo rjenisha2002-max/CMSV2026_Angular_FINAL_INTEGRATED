@@ -1,0 +1,28 @@
+@import '../doctor-shared';
+@include doctor-page-layout;
+
+// These used to reference var(--violet-100/700/800) which were never
+// defined anywhere in the project (only --blue-* exists globally), so
+// the token badge and appointment time had no colour at all. Re-themed
+// to the doctor module's own teal-green brand.
+.token-badge {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: rgba(22, 89, 77, 0.12);
+  color: $doctor-brand-dark;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+}
+
+.appt-time {
+  color: $doctor-brand;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.status-completed { background: #dcfce7; color: #15803d; }
+.status-cancelled { background: #fee2e2; color: #b91c1c; }

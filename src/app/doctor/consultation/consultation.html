@@ -1,0 +1,153 @@
+<div class="doctor-layout">
+  <app-doctor-sidebar></app-doctor-sidebar>
+
+  <div class="doctor-content">
+    <div class="page-heading"><h3>Consultation</h3></div>
+
+    <div class="alert alert-info" *ngIf="loading">Loading...</div>
+    <div class="alert alert-danger" *ngIf="error">{{ error }}</div>
+
+    <!-- Final summary after successful submit -->
+    <div class="theme-card mt-3" *ngIf="summary">
+      <div class="card-body">
+        <h4 class="card-title">Consultation Summary</h4>
+        <p><strong>Patient:</strong> {{ summary.patientName }} ({{ summary.mmrCode }})</p>
+        <p><strong>Symptoms:</strong> {{ summary.symptoms }}</p>
+        <p><strong>Diagnosis:</strong> {{ summary.diagnosis }}</p>
+        <p *ngIf="summary.clinicalNotes"><strong>Notes:</strong> {{ summary.clinicalNotes }}</p>
+        <p *ngIf="summary.followUpDate"><strong>Follow-up:</strong> {{ summary.followUpDate | date: 'mediumDate' }}</p>
+
+        <h5 class="mt-3">Prescribed Medicines</h5>
+        <table class="table table-sm table-bordered" *ngIf="summary.prescribedMedicines?.length">
+          <thead><tr><th>Medicine</th><th>Dosage</th><th>Frequency</th><th>Qty</th></tr></thead>
+          <tbody>
+            <tr *ngFor="let m of summary.prescribedMedicines">
+              <td>{{ m.medicineName }}</td><td>{{ m.dosage }}</td><td>{{ m.frequency }}</td><td>{{ m.quantity }}</td>
+            </tr>
+          </tbody>
+        </table>
+        <p *ngIf="!summary.prescribedMedicines?.length" class="text-muted">No medicines prescribed.</p>
+
+        <h5 class="mt-3">Lab Tests Ordered</h5>
+        <ul *ngIf="summary.orderedLabTests?.length">
+          <li *ngFor="let t of summary.orderedLabTests">{{ t }}</li>
+        </ul>
+        <p *ngIf="!summary.orderedLabTests?.length" class="text-muted">No lab tests ordered.</p>
+
+        <button class="btn btn-theme mt-2" (click)="backToAppointments()">Back to Appointments</button>
+        <button class="btn btn-theme-outline mt-2 ml-2" (click)="downloadPdf()"><i class="fa fa-file-pdf-o"></i> Download PDF</button>
+      </div>
+    </div>
+
+    <!-- Consultation form -->
+    <div class="row" *ngIf="!loading && !error && model && !summary">
+      <div class="col-md-8">
+        <div class="theme-card mb-3">
+          <div class="card-body">
+            <h5>{{ model.fullName }} <small class="text-muted">({{ model.mmrCode }}, {{ model.age }} / {{ model.gender }})</small></h5>
+            <p class="text-muted mb-0">Mobile: {{ model.mobileNumber }}</p>
+          </div>
+        </div>
+
+        <form (ngSubmit)="submit()">
+          <div class="form-group">
+            <label>Symptoms *</label>
+            <textarea class="form-control" rows="2" [(ngModel)]="model.symptoms" name="symptoms" required></textarea>
+          </div>
+          <div class="form-group">
+            <label>Diagnosis *</label>
+            <textarea class="form-control" rows="2" [(ngModel)]="model.diagnosis" name="diagnosis" required></textarea>
+          </div>
+          <div class="form-group">
+            <label>Notes</label>
+            <textarea class="form-control" rows="2" [(ngModel)]="model.notes" name="notes"></textarea>
+          </div>
+          <div class="form-group">
+            <label>Follow-up Date</label>
+            <input type="date" class="form-control" [(ngModel)]="model.followUpDate" name="followUpDate" />
+          </div>
+
+          <h5>Lab Tests</h5>
+          <div class="form-check" *ngFor="let t of model.availableLabTests">
+            <input
+              type="checkbox"
+              class="form-check-input"
+              [id]="'test-' + t.testId"
+              (change)="toggleLabTest(t.testId, $any($event.target).checked)"
+            />
+            <label class="form-check-label" [for]="'test-' + t.testId">{{ t.testName }}</label>
+          </div>
+
+          <h5 class="mt-3">Prescription</h5>
+          <div class="theme-card mb-2 p-2" *ngFor="let item of prescriptionItems; let i = index">
+            <div class="form-row">
+              <div class="col-md-3">
+                <select class="form-control" [(ngModel)]="item.medicineId" [name]="'med' + i" required>
+                  <option [ngValue]="null">Select medicine</option>
+                  <option *ngFor="let m of model.availableMedicines" [ngValue]="m.medicineId">{{ m.medicineName }}</option>
+                </select>
+              </div>
+              <div class="col-md-2">
+                <select class="form-control" [(ngModel)]="item.dosage" [name]="'dosage' + i" required>
+                  <option value="" disabled selected>Dosage</option>
+                  <option value="250mg">250mg</option>
+                  <option value="500mg">500mg</option>
+                  <option value="650mg">650mg</option>
+                  <option value="1000mg">1000mg</option>
+                  <option value="1 tablet">1 tablet</option>
+                  <option value="2 tablets">2 tablets</option>
+                  <option value="5ml">5ml</option>
+                  <option value="10ml">10ml</option>
+                  <option value="1 drop">1 drop</option>
+                  <option value="2 drops">2 drops</option>
+                </select>
+              </div>
+              <div class="col-md-2">
+                <select class="form-control" [(ngModel)]="item.frequency" [name]="'freq' + i" required>
+                  <option value="" disabled selected>Frequency</option>
+                  <option value="1-0-0">1-0-0 (Morning only)</option>
+                  <option value="0-1-0">0-1-0 (Afternoon only)</option>
+                  <option value="0-0-1">0-0-1 (Night only)</option>
+                  <option value="1-0-1">1-0-1 (Morning &amp; Night)</option>
+                  <option value="1-1-0">1-1-0 (Morning &amp; Afternoon)</option>
+                  <option value="0-1-1">0-1-1 (Afternoon &amp; Night)</option>
+                  <option value="1-1-1">1-1-1 (Morning, Afternoon &amp; Night)</option>
+                  <option value="1-1-1-1">1-1-1-1 (Four times a day)</option>
+                  <option value="SOS">SOS (As needed)</option>
+                </select>
+              </div>
+              <div class="col-md-1">
+                <input type="number" min="1" class="form-control" placeholder="Days" title="Duration in days" [(ngModel)]="item.quantity" [name]="'qty' + i" required />
+              </div>
+              <div class="col-md-1"><button type="button" class="btn btn-theme-outline btn-sm text-danger" (click)="removePrescriptionItem(i)">&times;</button></div>
+              <div class="col-md-12 mt-1">
+                <input class="form-control" placeholder="Instructions (optional)" [(ngModel)]="item.instructions" [name]="'instr' + i" />
+              </div>
+            </div>
+          </div>
+          <button type="button" class="btn btn-theme-outline btn-sm mb-3" (click)="addPrescriptionItem()">+ Add Medicine</button>
+
+          <div>
+            <button type="submit" class="btn btn-theme" [disabled]="saving">
+              <span *ngIf="saving" class="spinner-border spinner-border-sm mr-1"></span>
+              Save Consultation
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <div class="col-md-4">
+        <div class="theme-card">
+          <div class="card-body">
+            <h5>Consultation History</h5>
+            <div *ngFor="let c of model.historicalData?.consultations" class="border-bottom py-2">
+              <small class="text-muted">{{ c.visitDate | date: 'mediumDate' }} - {{ c.doctorName }}</small>
+              <div><strong>Dx:</strong> {{ c.diagnosis }}</div>
+            </div>
+            <p *ngIf="!model.historicalData?.consultations?.length" class="text-muted">No previous visits.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

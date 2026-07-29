@@ -1,0 +1,113 @@
+<div class="ph-page">
+  <div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+      <div class="page-title">Dispensing History</div>
+      <div class="page-sub">Complete record of all medicine dispensing transactions</div>
+    </div>
+    <a routerLink="/pharmacy/dispensing" class="btn-cms">
+      <i class="fa-solid fa-hand-holding-medical me-1"></i> Dispense Medicine
+    </a>
+  </div>
+
+  <div *ngIf="error" class="alert alert-danger">
+    <i class="fa-solid fa-circle-exclamation me-2"></i>{{ error }}
+  </div>
+
+  <!-- Filters -->
+  <div class="cms-card mb-3">
+    <div style="padding:12px 18px;">
+      <div class="row g-2 align-items-end">
+        <div class="col-md-6">
+          <label class="form-label text-muted" style="font-size:12px;">Search Patient</label>
+          <div class="input-group">
+            <span class="input-group-text"><i class="fa-solid fa-magnifying-glass"></i></span>
+            <input type="text" class="form-control" [(ngModel)]="searchTerm"
+                   placeholder="Type patient name…" (input)="filter()" />
+          </div>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label text-muted" style="font-size:12px;">Date Filter</label>
+          <input type="date" class="form-control" [(ngModel)]="dateFilter" (change)="filter()" />
+        </div>
+        <div class="col-md-3">
+          <button class="btn btn-outline-secondary w-100" (click)="clearFilters()">
+            <i class="fa-solid fa-xmark me-1"></i> Clear Filters
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="cms-card">
+    <div class="cms-card-header">
+      <span class="cms-card-title"><i class="fa-solid fa-clock-rotate-left"></i> Dispensing Records</span>
+      <span class="badge bg-secondary">{{ filtered.length }} record(s)</span>
+    </div>
+    <div style="overflow-x:auto;">
+      <table class="cms-table">
+        <thead>
+          <tr>
+            <th>Dispense No.</th>
+            <th>Prescription No.</th>
+            <th>Patient</th>
+            <th>Dispensed By</th>
+            <th>Date &amp; Time</th>
+            <th class="text-center">Items</th>
+            <th class="text-end">Total</th>
+            <th class="text-center">Remarks</th>
+            <th class="text-center">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <ng-container *ngIf="!loading; else loadTpl">
+            <tr *ngFor="let h of filtered">
+              <td style="font-weight:600;">{{ dispNo(h.dispenseId) }}</td>
+              <td>
+                <span *ngIf="h.prescriptionId">
+                  <a [routerLink]="['/pharmacy/prescription', h.prescriptionId]"
+                     style="text-decoration:none;color:#198754;">{{ rxNo(h.prescriptionId) }}</a>
+                </span>
+                <span *ngIf="!h.prescriptionId" class="text-muted">—</span>
+              </td>
+              <td>{{ h.patientName || '—' }}</td>
+              <td>{{ h.pharmacistName || '—' }}</td>
+              <td>{{ h.dispenseDate | date:'dd MMM yyyy HH:mm' }}</td>
+              <td class="text-center">
+                <span class="badge bg-secondary">{{ h.totalItems }}</span>
+              </td>
+              <td class="text-end">
+                <span *ngIf="h.totalAmount > 0" style="font-weight:700;color:#198754;">
+                  ₹{{ h.totalAmount | number:'1.2-2' }}
+                </span>
+                <span *ngIf="!h.totalAmount || h.totalAmount === 0" class="text-muted">—</span>
+              </td>
+              <td class="text-center">
+                <span *ngIf="h.remarks" [title]="h.remarks" style="cursor:help;">
+                  <i class="fa-solid fa-comment-dots text-muted"></i>
+                </span>
+                <span *ngIf="!h.remarks" class="text-muted">—</span>
+              </td>
+              <td class="text-center">
+                <a [routerLink]="['/pharmacy/dispensing', h.dispenseId, 'items']"
+                   class="btn-outline-cms btn-sm-cms">
+                  <i class="fa-solid fa-eye"></i> Items
+                </a>
+              </td>
+            </tr>
+            <tr *ngIf="filtered.length === 0">
+              <td colspan="9" style="text-align:center;padding:36px;color:#94a3b8;">
+                <i class="fa-solid fa-inbox" style="font-size:28px;display:block;margin-bottom:8px;"></i>
+                No dispensing records found.
+              </td>
+            </tr>
+          </ng-container>
+          <ng-template #loadTpl>
+            <tr><td colspan="9" style="text-align:center;padding:32px;">
+              <div class="spinner-border spinner-border-sm text-primary"></div> Loading…
+            </td></tr>
+          </ng-template>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

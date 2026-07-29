@@ -1,0 +1,81 @@
+<div class="ph-page">
+  <div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+      <div class="page-title">Stock Batches</div>
+      <div class="page-sub">All medicine stock batch records</div>
+    </div>
+    <a routerLink="/pharmacy/stock/add" class="btn-primary-cms">
+      <i class="fa-solid fa-plus"></i> Add Stock
+    </a>
+  </div>
+
+  <div *ngIf="error" class="alert alert-danger">
+    <i class="fa-solid fa-circle-exclamation me-2"></i>{{ error }}
+  </div>
+
+  <div class="cms-card">
+    <div class="cms-card-header">
+      <span class="cms-card-title"><i class="fa-solid fa-boxes-stacked"></i> Stock Inventory</span>
+      <span style="font-size:12px;color:#64748b;">{{ stocks.length }} batches</span>
+    </div>
+    <div style="overflow-x:auto;">
+      <table class="cms-table">
+        <thead>
+          <tr>
+            <th>Stock ID</th>
+            <th>Medicine</th>
+            <th>Batch No</th>
+            <th>Quantity</th>
+            <th>Purchase Price</th>
+            <th>Expiry Date</th>
+            <th>Purchase Date</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <ng-container *ngIf="!loading; else loadTpl">
+            <tr *ngFor="let s of stocks"
+                [class.alert-row]="isExpired(s) || isLow(s)">
+              <td style="color:#94a3b8;font-size:12px;">{{ s.stockId }}</td>
+              <td style="font-weight:600;">{{ s.medicineName }}</td>
+              <td>{{ s.batchNumber }}</td>
+              <td>
+                <span *ngIf="isLow(s)" class="badge-cms badge-danger">{{ s.quantity }} (Low)</span>
+                <span *ngIf="!isLow(s)">{{ s.quantity }}</span>
+              </td>
+              <td>₹{{ s.purchasePrice | number:'1.2-2' }}</td>
+              <td>
+                <span *ngIf="isExpired(s)" class="badge-cms badge-danger">
+                  {{ s.expiryDate | date:'dd MMM yyyy' }}
+                </span>
+                <span *ngIf="!isExpired(s) && isExpiring(s)" class="badge-cms badge-warn">
+                  {{ s.expiryDate | date:'dd MMM yyyy' }}
+                </span>
+                <span *ngIf="!isExpired(s) && !isExpiring(s)">
+                  {{ s.expiryDate | date:'dd MMM yyyy' }}
+                </span>
+              </td>
+              <td>{{ s.purchaseDate ? (s.purchaseDate | date:'dd MMM yyyy') : '—' }}</td>
+              <td>
+                <a [routerLink]="['/pharmacy/stock/edit', s.stockId]" class="btn-outline-cms btn-sm-cms">
+                  <i class="fa-solid fa-pen"></i> Edit
+                </a>
+              </td>
+            </tr>
+            <tr *ngIf="stocks.length === 0">
+              <td colspan="8" style="text-align:center;padding:36px;color:#94a3b8;">
+                <i class="fa-solid fa-boxes-stacked" style="font-size:28px;display:block;margin-bottom:8px;"></i>
+                No stock records found
+              </td>
+            </tr>
+          </ng-container>
+          <ng-template #loadTpl>
+            <tr><td colspan="8" style="text-align:center;padding:32px;">
+              <div class="spinner-border spinner-border-sm text-primary"></div> Loading…
+            </td></tr>
+          </ng-template>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,88 @@
+<div class="ph-page">
+  <div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+      <div class="page-title">Pharmacy Bills</div>
+      <div class="page-sub">All bills generated at the pharmacy counter</div>
+    </div>
+    <a routerLink="/pharmacy/bills/create" class="btn-primary-cms">
+      <i class="fa-solid fa-plus"></i> Create Bill
+    </a>
+  </div>
+
+  <div *ngIf="error" class="alert alert-danger">
+    <i class="fa-solid fa-circle-exclamation me-2"></i>{{ error }}
+  </div>
+
+  <div class="cms-card">
+    <div class="cms-card-header">
+      <span class="cms-card-title"><i class="fa-solid fa-receipt"></i> Bill List</span>
+      <span style="font-size:12px;color:#64748b;">{{ filtered.length }} bills</span>
+    </div>
+
+    <!-- Search bar -->
+    <div style="padding:12px 16px;border-bottom:1px solid #f1f5f9;">
+      <div style="display:flex;align-items:center;gap:8px;max-width:400px;">
+        <div style="position:relative;flex:1;">
+          <i class="fa-solid fa-magnifying-glass"
+             style="position:absolute;left:10px;top:50%;transform:translateY(-50%);color:#94a3b8;font-size:13px;"></i>
+          <input type="text"
+                 [(ngModel)]="searchTerm"
+                 (ngModelChange)="filter()"
+                 placeholder="Search by patient, code or bill no…"
+                 style="width:100%;padding:7px 10px 7px 32px;border:1px solid #e2e8f0;border-radius:6px;font-size:13px;outline:none;" />
+        </div>
+        <button *ngIf="searchTerm" (click)="clearSearch()"
+                style="padding:7px 12px;border:1px solid #e2e8f0;border-radius:6px;background:#fff;font-size:12px;cursor:pointer;color:#64748b;">
+          Clear
+        </button>
+      </div>
+    </div>
+
+    <div style="overflow-x:auto;">
+      <table class="cms-table">
+        <thead>
+          <tr>
+            <th>Bill No.</th>
+            <th>Patient</th>
+            <th>Date</th>
+            <th>Total Amount</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <ng-container *ngIf="!loading; else loadTpl">
+            <tr *ngFor="let b of filtered">
+              <td style="font-weight:600;font-size:12px;color:#64748b;">{{ billNo(b.billId) }}</td>
+              <td>
+                <div style="font-weight:600;font-size:13px;">{{ b.patientName || 'Patient #' + b.patientId }}</div>
+                <div style="font-size:11px;color:#94a3b8;" *ngIf="b.patientCode">{{ b.patientCode }}</div>
+              </td>
+              <td>{{ b.billDate | date:'dd MMM yyyy' }}</td>
+              <td style="font-weight:700;color:#198754;">₹{{ b.totalAmount | number:'1.2-2' }}</td>
+              <td>
+                <span class="badge-cms" [ngClass]="statusClass(b.status)">{{ b.status || 'Pending' }}</span>
+              </td>
+              <td>
+                <a [routerLink]="['/pharmacy/bills', b.billId]" class="btn-outline-cms btn-sm-cms">
+                  <i class="fa-solid fa-eye"></i> View
+                </a>
+              </td>
+            </tr>
+            <tr *ngIf="filtered.length === 0">
+              <td colspan="6" style="text-align:center;padding:36px;color:#94a3b8;">
+                <i class="fa-solid fa-receipt" style="font-size:28px;display:block;margin-bottom:8px;"></i>
+                {{ searchTerm ? 'No bills match your search' : 'No bills found' }}
+              </td>
+            </tr>
+          </ng-container>
+          <ng-template #loadTpl>
+            <tr><td colspan="6" style="text-align:center;padding:32px;">
+              <div class="spinner-border spinner-border-sm text-primary"></div> Loading…
+            </td></tr>
+          </ng-template>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,127 @@
+/* ─── Invoice Page — mirrors MVC Bill/Invoice.cshtml ─────────────────────── */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body { font-family: 'Plus Jakarta Sans', 'Segoe UI', system-ui, sans-serif; color: #1e293b; font-size: 14px; }
+
+/* Actions bar */
+.inv-actions {
+  max-width: 800px;
+  margin: 16px auto;
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  padding: 0 16px;
+}
+
+.inv-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #198754;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 9px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+}
+.inv-btn-outline {
+  background: transparent;
+  color: #198754;
+  border: 1.5px solid #198754;
+}
+.inv-btn:hover { opacity: .88; }
+
+/* Invoice body */
+.invoice {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 32px;
+}
+
+/* Header */
+.inv-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  border-bottom: 2px solid #198754;
+  padding-bottom: 16px;
+  margin-bottom: 20px;
+}
+.inv-brand { font-size: 24px; font-weight: 700; color: #198754; }
+.inv-brand-sub { font-size: 12px; color: #64748b; }
+.inv-doc-title { font-size: 22px; font-weight: 700; }
+.inv-meta { font-size: 13px; color: #475569; margin-top: 4px; }
+
+/* Status badges */
+.inv-status {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+}
+.inv-status-paid    { background: #d1e7dd; color: #146c43; }
+.inv-status-cancelled { background: #f1f5f9; color: #334155; }
+
+/* Patient section */
+.inv-parties { margin-bottom: 20px; }
+.inv-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  color: #94a3b8;
+  font-weight: 600;
+}
+.inv-name { font-size: 16px; font-weight: 700; margin-top: 2px; }
+.inv-patient-code { font-size: 12px; color: #64748b; }
+
+/* Items table */
+.inv-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 8px;
+}
+.inv-table th {
+  background: #eaf4ee;
+  text-align: left;
+  padding: 10px 12px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: .03em;
+  border-bottom: 2px solid #a3cfbb;
+}
+.inv-table td {
+  padding: 9px 12px;
+  border-bottom: 1px solid #f1f5f9;
+}
+.inv-total-row td {
+  font-weight: 700;
+  font-size: 15px;
+  border-top: 2px solid #e2e8f0;
+}
+.inv-total-amt { color: #198754; }
+
+.text-end   { text-align: right; }
+.text-center { text-align: center; }
+
+/* Footer */
+.inv-footer {
+  margin-top: 28px;
+  text-align: center;
+  font-size: 11px;
+  color: #94a3b8;
+  border-top: 1px solid #e2e8f0;
+  padding-top: 12px;
+  line-height: 1.6;
+}
+
+/* Print: hide actions bar */
+@media print {
+  .no-print { display: none !important; }
+  body { padding: 0; }
+  .invoice { padding: 16px; }
+}

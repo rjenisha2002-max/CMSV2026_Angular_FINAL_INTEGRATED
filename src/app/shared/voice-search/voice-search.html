@@ -1,0 +1,14 @@
+<button
+  type="button"
+  class="btn voice-search-btn mr-2"
+  [class.btn-outline-secondary]="!listening"
+  [class.btn-danger]="listening"
+  [disabled]="!supported"
+  [title]="supported ? title : 'Voice search is not supported in this browser'"
+  (click)="toggle()"
+>
+  <span class="mic-icon" [class.pulse]="listening">🎤</span>
+  <span class="d-none d-sm-inline ml-1">{{ listening ? 'Listening…' : 'Voice' }}</span>
+</button>
+
+<small class="text-danger voice-search-error" *ngIf="error">{{ error }}</small>

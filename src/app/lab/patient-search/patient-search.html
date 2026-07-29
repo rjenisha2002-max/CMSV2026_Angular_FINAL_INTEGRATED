@@ -1,0 +1,20 @@
+<h3>Patient Search</h3>
+
+<div class="form-inline mb-3">
+  <input type="text" class="form-control mr-2" placeholder="Search by MMR code" [(ngModel)]="term" (keyup.enter)="search()" />
+  <app-voice-search (result)="onVoiceResult($event)"></app-voice-search>
+  <button class="btn btn-success" (click)="search()">Search</button>
+</div>
+
+<div class="alert alert-info" *ngIf="loading">Loading...</div>
+<div class="alert alert-danger" *ngIf="error">{{ error }}</div>
+
+<table class="table table-bordered bg-white" *ngIf="!loading">
+  <thead class="thead-light"><tr><th>MMR</th><th>Name</th><th>Age/Gender</th><th>Mobile</th></tr></thead>
+  <tbody>
+    <tr *ngFor="let p of results">
+      <td>{{ p.mmrCode }}</td><td>{{ p.fullName }}</td><td>{{ p.age }} / {{ p.gender }}</td><td>{{ p.mobileNumber }}</td>
+    </tr>
+    <tr *ngIf="results.length === 0"><td colspan="4" class="text-center text-muted">No results.</td></tr>
+  </tbody>
+</table>

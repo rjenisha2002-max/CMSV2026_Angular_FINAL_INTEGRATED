@@ -1,0 +1,72 @@
+<h3>Lab Billing</h3>
+
+<div class="form-inline mb-3">
+  <input type="text" class="form-control mr-2" placeholder="Search by MMR code" [(ngModel)]="searchMMR" (keyup.enter)="load()" />
+  <button class="btn btn-success" (click)="load()">Search</button>
+</div>
+
+<div class="alert alert-info" *ngIf="loading">Loading...</div>
+<div class="alert alert-danger" *ngIf="error">{{ error }}</div>
+<div class="alert alert-success" *ngIf="message">{{ message }}</div>
+
+<div *ngIf="!loading">
+  <h5>Unbilled Requests</h5>
+  <table class="table table-bordered bg-white mb-4">
+    <thead class="thead-light">
+      <tr><th>Request ID</th><th>MMR</th><th>Patient</th><th>Tests</th><th>Amount</th><th></th></tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let u of unbilled">
+        <td>{{ u.requestId }}</td>
+        <td>{{ u.mmrCode }}</td>
+        <td>{{ u.patientName }}</td>
+        <td>{{ u.totalTests }}</td>
+        <td>&#8377;{{ u.totalAmount }}</td>
+        <td><button class="btn btn-sm btn-success" (click)="generateBill(u.requestId)">Generate Bill</button></td>
+      </tr>
+      <tr *ngIf="unbilled.length === 0"><td colspan="6" class="text-center text-muted">No unbilled requests.</td></tr>
+    </tbody>
+  </table>
+
+  <h5>Bills</h5>
+  <table class="table table-bordered bg-white">
+    <thead class="thead-light">
+      <tr><th>Bill ID</th><th>MMR</th><th>Patient</th><th>Date</th><th>Amount</th><th>Status</th><th></th></tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let b of bills">
+        <td>{{ b.billId }}</td>
+        <td>{{ b.mmrCode }}</td>
+        <td>{{ b.patientName }}</td>
+        <td>{{ b.billDate | date: 'mediumDate' }}</td>
+        <td>&#8377;{{ b.totalAmount }}</td>
+        <td>
+          <select class="form-control form-control-sm" [ngModel]="b.paymentStatus" (ngModelChange)="updatePayment(b.billId, $event)">
+            <option value="Pending">Pending</option>
+            <option value="Paid">Paid</option>
+          </select>
+        </td>
+        <td>
+          <button class="btn btn-sm btn-outline-primary mr-1" (click)="viewBill(b.billId)">View</button>
+          <a class="btn btn-sm btn-outline-secondary" [href]="downloadPdfUrl(b.billId)" target="_blank">PDF</a>
+        </td>
+      </tr>
+      <tr *ngIf="bills.length === 0"><td colspan="7" class="text-center text-muted">No bills found.</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="card mt-3" *ngIf="selectedBill">
+  <div class="card-body">
+    <button class="btn btn-sm btn-outline-secondary mb-2" (click)="selectedBill = null">Close</button>
+    <h5>Bill #{{ selectedBill.bill.billId }} - {{ selectedBill.bill.patientName }} ({{ selectedBill.bill.mmrCode }})</h5>
+    <p>Age/Gender: {{ selectedBill.age }} / {{ selectedBill.gender }}</p>
+    <table class="table table-sm table-bordered">
+      <thead><tr><th>Test</th><th>Amount</th></tr></thead>
+      <tbody>
+        <tr *ngFor="let i of selectedBill.items"><td>{{ i.testName }}</td><td>&#8377;{{ i.amount }}</td></tr>
+      </tbody>
+    </table>
+    <p><strong>Total: &#8377;{{ selectedBill.bill.totalAmount }}</strong> ({{ selectedBill.bill.paymentStatus }})</p>
+  </div>
+</div>

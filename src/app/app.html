@@ -1,0 +1,5 @@
+<app-header *ngIf="showHeader"></app-header>
+<main class="app-content" [@routeAnimations]="animationKey(outlet)">
+  <router-outlet #outlet="outlet"></router-outlet>
+</main>
+<app-toast-container></app-toast-container>

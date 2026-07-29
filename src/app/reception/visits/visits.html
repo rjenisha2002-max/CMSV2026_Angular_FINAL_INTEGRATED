@@ -1,0 +1,22 @@
+<h3>Patient Visits</h3>
+
+<div class="alert alert-info" *ngIf="loading">Loading...</div>
+<div class="alert alert-danger" *ngIf="error">{{ error }}</div>
+
+<table class="table table-bordered bg-white" *ngIf="!loading">
+  <thead class="thead-light">
+    <tr><th>Token</th><th>Patient</th><th>Doctor</th><th>Department</th><th>Appt #</th><th>Visit Date</th><th>Status</th></tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let v of visits">
+      <td>{{ v.tokenNumber }}</td>
+      <td>{{ v.patientName }}</td>
+      <td>{{ v.doctorName }}</td>
+      <td>{{ v.departmentName }}</td>
+      <td>{{ v.appointmentNumber }}</td>
+      <td>{{ v.visitDate | date: 'medium' }}</td>
+      <td>{{ v.visitStatus }}</td>
+    </tr>
+    <tr *ngIf="visits.length === 0"><td colspan="7" class="text-center text-muted">No visits found.</td></tr>
+  </tbody>
+</table>

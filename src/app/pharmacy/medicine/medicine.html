@@ -1,0 +1,102 @@
+<div class="ph-page">
+  <div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+      <div class="page-title">Medicines</div>
+      <div class="page-sub">Manage your medicine catalogue</div>
+    </div>
+    <a routerLink="/pharmacy/medicine/add" class="btn-primary-cms">
+      <i class="fa-solid fa-plus"></i> Add Medicine
+    </a>
+  </div>
+
+  <div *ngIf="successMsg" class="alert alert-success alert-dismissible fade show">
+    <i class="fa-solid fa-circle-check me-2"></i>{{ successMsg }}
+    <button type="button" class="btn-close" (click)="successMsg=''"></button>
+  </div>
+  <div *ngIf="error" class="alert alert-danger alert-dismissible fade show">
+    {{ error }}<button type="button" class="btn-close" (click)="error=''"></button>
+  </div>
+
+  <!-- Search -->
+  <div class="cms-card mb-3">
+    <div class="cms-card-body">
+      <div class="d-flex gap-2 flex-wrap">
+        <input type="text" [(ngModel)]="searchTerm" class="form-control-cms" style="max-width:320px;"
+               placeholder="Search by name or code…" (keyup.enter)="onSearch()" />
+        <button class="btn-primary-cms" (click)="onSearch()">
+          <i class="fa-solid fa-magnifying-glass"></i> Search
+        </button>
+        <button *ngIf="searchTerm" class="btn-outline-cms" (click)="clearSearch()">
+          Clear
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="cms-card">
+    <div class="cms-card-header">
+      <span class="cms-card-title"><i class="fa-solid fa-capsules"></i> Medicine Catalogue</span>
+      <span style="font-size:12px;color:#64748b;">{{ medicines.length }} medicines</span>
+    </div>
+    <div style="overflow-x:auto;">
+      <table class="cms-table">
+        <thead>
+          <tr>
+            <th>Code</th>
+            <th>Medicine Name</th>
+            <th>Generic Name</th>
+            <th>Category</th>
+            <th>Manufacturer</th>
+            <th>Unit</th>
+            <th>Unit Price</th>
+            <th>Reorder Lvl</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <ng-container *ngIf="!loading; else loadingTpl">
+            <tr *ngFor="let item of medicines">
+              <td style="font-size:12px;color:#64748b;">{{ item.medicineCode }}</td>
+              <td style="font-weight:600;">{{ item.medicineName }}</td>
+              <td>{{ item.genericName || '—' }}</td>
+              <td>{{ item.categoryName }}</td>
+              <td>{{ item.manufacturerName }}</td>
+              <td>{{ item.unit || '—' }}</td>
+              <td style="font-weight:600;color:#198754;">₹{{ item.unitPrice | number:'1.2-2' }}</td>
+              <td>{{ item.reorderLevel }}</td>
+              <td>
+                <span *ngIf="item.isActive" class="badge-cms badge-success">Active</span>
+                <span *ngIf="!item.isActive" class="badge-cms badge-gray">Disabled</span>
+              </td>
+              <td>
+                <div class="d-flex gap-2">
+                  <a [routerLink]="['/pharmacy/medicine/edit', item.medicineId]"
+                     class="btn-outline-cms btn-sm-cms">
+                    <i class="fa-solid fa-pen"></i> Edit
+                  </a>
+                  <button *ngIf="item.isActive" class="btn-danger-cms btn-sm-cms"
+                          (click)="disable(item.medicineId)">
+                    <i class="fa-solid fa-ban"></i> Disable
+                  </button>
+                </div>
+              </td>
+            </tr>
+            <tr *ngIf="medicines.length === 0">
+              <td colspan="10" style="text-align:center;padding:36px;color:#94a3b8;">
+                <i class="fa-solid fa-capsules" style="font-size:28px;display:block;margin-bottom:8px;"></i>
+                No medicines found
+              </td>
+            </tr>
+          </ng-container>
+          <ng-template #loadingTpl>
+            <tr><td colspan="10" style="text-align:center;padding:32px;">
+              <div class="spinner-border spinner-border-sm text-primary"></div> Loading…
+            </td></tr>
+          </ng-template>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

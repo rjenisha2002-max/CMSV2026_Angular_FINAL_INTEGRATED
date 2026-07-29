@@ -1,0 +1,293 @@
+/* ==========================================================================
+   Pharmacy Layout Shell  — Plus Jakarta Sans premium design
+   ========================================================================== */
+
+/* ─── Shell ──────────────────────────────────────────────────────────────── */
+.pharmacy-shell {
+  display: flex;
+  min-height: 100vh;
+  background: #f1f5f9;
+}
+
+/* ==========================================================================
+   Sidebar
+   ========================================================================== */
+.ph-sidebar {
+  width: 248px;
+  min-height: 100vh;
+  background: linear-gradient(180deg, #0f172a 0%, #111827 100%);
+  display: flex;
+  flex-direction: column;
+  transition: width 0.22s cubic-bezier(.4,0,.2,1);
+  flex-shrink: 0;
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  z-index: 100;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: #334155 transparent;
+}
+.ph-sidebar::-webkit-scrollbar { width: 4px; }
+.ph-sidebar::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+
+/* Collapsed state */
+.sidebar-collapsed .ph-sidebar { width: 66px; }
+.sidebar-collapsed .brand-text,
+.sidebar-collapsed .ph-nav-link span,
+.sidebar-collapsed .ph-nav-section,
+.sidebar-collapsed .ph-logout-btn span,
+.sidebar-collapsed .user-info-block { display: none; }
+
+/* Brand */
+.ph-sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 22px 18px 20px;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(255,255,255,.06);
+  background: rgba(255,255,255,.03);
+}
+.brand-icon-wrap {
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(135deg, #38bdf8, #0ea5e9);
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 16px;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(56,189,248,.35);
+}
+.brand-text {
+  font-size: 15px;
+  font-weight: 700;
+  color: #f1f5f9;
+  line-height: 1.2;
+  letter-spacing: -0.2px;
+  white-space: nowrap;
+}
+.brand-sub {
+  font-size: 10.5px;
+  color: #64748b;
+  font-weight: 400;
+  margin-top: 1px;
+  white-space: nowrap;
+}
+
+/* Nav */
+.ph-nav { flex: 1; padding: 10px 0 8px; }
+
+.ph-nav-section {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 1.1px;
+  color: #475569;
+  padding: 14px 18px 5px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.ph-nav-link {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 9px 18px;
+  color: #94a3b8;
+  text-decoration: none;
+  font-size: 13.5px;
+  font-weight: 500;
+  border-left: 3px solid transparent;
+  transition: all 0.15s ease;
+  position: relative;
+  white-space: nowrap;
+}
+.ph-nav-link:hover {
+  color: #e2e8f0;
+  background: rgba(255,255,255,.06);
+}
+.ph-nav-link.active {
+  color: #38bdf8;
+  background: linear-gradient(90deg, rgba(56,189,248,.12) 0%, rgba(56,189,248,.04) 100%);
+  border-left-color: #38bdf8;
+}
+.ph-nav-link i {
+  width: 18px;
+  text-align: center;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+/* Sub-items */
+.ph-nav-sub {
+  padding-left: 36px;
+  font-size: 13px;
+}
+.ph-nav-sub i { font-size: 13px; }
+
+/* Sidebar footer — user info + logout */
+.ph-sidebar-footer {
+  padding: 12px 14px 16px;
+  border-top: 1px solid rgba(255,255,255,.06);
+}
+.user-info-block {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 4px;
+  margin-bottom: 8px;
+}
+.user-avatar {
+  width: 34px;
+  height: 34px;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.user-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #e2e8f0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.user-role {
+  font-size: 11px;
+  color: #475569;
+  white-space: nowrap;
+}
+.ph-logout-btn {
+  width: 100%;
+  background: rgba(248,113,113,.08);
+  border: 1px solid rgba(248,113,113,.2);
+  color: #94a3b8;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.15s;
+  font-family: inherit;
+}
+.ph-logout-btn:hover {
+  color: #f87171;
+  border-color: #f87171;
+  background: rgba(248,113,113,.12);
+}
+
+/* ==========================================================================
+   Main content area
+   ========================================================================== */
+.ph-main {
+  flex: 1;
+  margin-left: 248px;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  transition: margin-left 0.22s cubic-bezier(.4,0,.2,1);
+}
+.sidebar-collapsed .ph-main { margin-left: 66px; }
+
+/* Topbar */
+.ph-topbar {
+  height: 60px;
+  background: #fff;
+  border-bottom: 1px solid #e8edf3;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 0 28px;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  box-shadow: 0 1px 4px rgba(0,0,0,.05);
+}
+.ph-toggle-btn {
+  background: none;
+  border: 1px solid #e2e8f0;
+  border-radius: 7px;
+  cursor: pointer;
+  color: #64748b;
+  font-size: 15px;
+  padding: 6px 9px;
+  transition: all .15s;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.ph-toggle-btn:hover { color: #0f172a; border-color: #cbd5e1; background: #f8fafc; }
+
+.ph-topbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+}
+.ph-topbar-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #0f172a;
+  letter-spacing: -0.2px;
+}
+.ph-topbar-subtitle {
+  font-size: 11.5px;
+  color: #94a3b8;
+  font-weight: 400;
+  margin-left: 4px;
+}
+
+.ph-topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.ph-topbar-user {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 50px;
+  padding: 6px 14px 6px 8px;
+}
+.ph-user-avatar {
+  width: 28px;
+  height: 28px;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.ph-user-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #334155;
+}
+.ph-user-role-tag {
+  font-size: 10.5px;
+  background: #dbeafe;
+  color: #1d4ed8;
+  padding: 2px 7px;
+  border-radius: 20px;
+  font-weight: 600;
+}
+
+/* Content */
+.ph-content { flex: 1; padding: 28px 30px 48px; }

@@ -1,0 +1,189 @@
+<div class="ph-page">
+  <div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+      <div class="page-title">Dispense Medicine</div>
+      <div class="page-sub">Select a prescription to dispense — stock is deducted using FEFO (first-expiry-first-out) and a paid bill is generated automatically</div>
+    </div>
+    <a routerLink="/pharmacy/dispensing/history" class="btn-outline-cms">
+      <i class="fa-solid fa-clock-rotate-left"></i> Dispensing History
+    </a>
+  </div>
+
+  <div *ngIf="error" class="alert alert-danger alert-dismissible fade show">
+    <i class="fa-solid fa-circle-exclamation me-2"></i>{{ error }}
+    <button type="button" class="btn-close" (click)="error=''"></button>
+  </div>
+
+  <div class="cms-card">
+    <div class="cms-card-header">
+      <span class="cms-card-title"><i class="fa-solid fa-file-prescription"></i> Prescriptions Awaiting Dispensing</span>
+      <span style="font-size:12px;color:#64748b;">{{ prescriptions.length }} prescription(s)</span>
+    </div>
+    <div *ngIf="loading" class="text-center py-4">
+      <div class="spinner-border text-primary"></div>
+    </div>
+    <div style="overflow-x:auto;" *ngIf="!loading">
+      <table class="cms-table">
+        <thead>
+          <tr>
+            <th>Rx No.</th>
+            <th>Patient</th>
+            <th>Doctor</th>
+            <th>Date</th>
+            <th>Status</th>
+            <th class="text-end">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let rx of prescriptions">
+            <td><strong>{{ refNo(rx.prescriptionId) }}</strong></td>
+            <td style="font-weight:600;">{{ rx.patientName }}</td>
+            <td>{{ rx.doctorName }}</td>
+            <td>{{ rx.prescriptionDate | date:'dd MMM yyyy' }}</td>
+            <td>
+              <span class="badge-cms" [ngClass]="statusClass(rx.status)">
+                {{ rx.status || 'Pending' }}
+              </span>
+            </td>
+            <td class="text-end">
+              <div class="d-inline-flex gap-2">
+                <a [routerLink]="['/pharmacy/prescription', rx.prescriptionId]"
+                   class="btn-outline-cms btn-sm-cms">
+                  <i class="fa-solid fa-eye"></i> View
+                </a>
+                <button type="button" class="btn-primary-cms btn-sm-cms"
+                        (click)="openModal(rx)">
+                  <i class="fa-solid fa-hand-holding-medical"></i> Dispense &amp; Bill
+                </button>
+              </div>
+            </td>
+          </tr>
+          <tr *ngIf="prescriptions.length === 0">
+            <td colspan="6" style="text-align:center;padding:40px;color:#94a3b8;">
+              <i class="fa-solid fa-circle-check" style="font-size:34px;display:block;margin-bottom:12px;color:#198754;"></i>
+              No prescriptions awaiting dispensing
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Dispense Confirmation Modal -->
+<div *ngIf="showModal"
+     class="modal show" tabindex="-1"
+     style="display:block;background:rgba(0,0,0,0.5);">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content" style="border-radius:12px;">
+
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <i class="fa-solid fa-hand-holding-medical text-success me-2"></i>
+          Confirm Dispense &amp; Bill
+        </h5>
+        <button type="button" class="btn-close" (click)="closeModal()"></button>
+      </div>
+
+      <div class="modal-body" *ngIf="modalPrescription">
+
+        <!-- ── Stock Check Panel ─────────────────────────────────── -->
+        <div style="margin-bottom:20px;">
+          <div style="font-weight:600;font-size:14px;margin-bottom:10px;color:#374151;">
+            <i class="fa-solid fa-boxes-stacked me-1"></i> Stock Availability Check
+          </div>
+
+          <!-- Loading -->
+          <div *ngIf="stockChecking"
+               style="text-align:center;padding:18px;color:#64748b;font-size:13px;">
+            <span class="spinner-border spinner-border-sm me-2"></span>
+            Checking stock…
+          </div>
+
+          <!-- Results table -->
+          <div *ngIf="!stockChecking && stockCheck" style="overflow-x:auto;">
+            <table style="width:100%;border-collapse:collapse;font-size:13px;">
+              <thead>
+                <tr style="background:#f8fafc;border-bottom:1px solid #e2e8f0;">
+                  <th style="padding:8px 12px;text-align:left;font-weight:600;color:#64748b;text-transform:uppercase;font-size:11px;letter-spacing:.04em;">Medicine</th>
+                  <th style="padding:8px 12px;text-align:center;font-weight:600;color:#64748b;text-transform:uppercase;font-size:11px;letter-spacing:.04em;">Required</th>
+                  <th style="padding:8px 12px;text-align:center;font-weight:600;color:#64748b;text-transform:uppercase;font-size:11px;letter-spacing:.04em;">Available</th>
+                  <th style="padding:8px 12px;text-align:center;font-weight:600;color:#64748b;text-transform:uppercase;font-size:11px;letter-spacing:.04em;">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let item of stockCheck.items"
+                    [style.background]="item.isShort ? '#fff7f7' : 'transparent'"
+                    style="border-bottom:1px solid #f1f5f9;">
+                  <td style="padding:9px 12px;font-weight:500;">{{ item.medicineName }}</td>
+                  <td style="padding:9px 12px;text-align:center;">{{ item.required }}</td>
+                  <td style="padding:9px 12px;text-align:center;"
+                      [style.color]="item.isShort ? '#dc2626' : '#16a34a'"
+                      [style.fontWeight]="'600'">
+                    {{ item.available }}
+                  </td>
+                  <td style="padding:9px 12px;text-align:center;">
+                    <span *ngIf="!item.isShort"
+                          style="background:#dcfce7;color:#166534;border-radius:20px;padding:3px 10px;font-size:11px;font-weight:600;">
+                      <i class="fa-solid fa-circle-check me-1"></i>OK
+                    </span>
+                    <span *ngIf="item.isShort"
+                          style="background:#fee2e2;color:#dc2626;border-radius:20px;padding:3px 10px;font-size:11px;font-weight:600;">
+                      <i class="fa-solid fa-triangle-exclamation me-1"></i>Insufficient
+                    </span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+
+            <!-- All OK banner -->
+            <div *ngIf="stockCheck.canDispense"
+                 style="margin-top:12px;padding:10px 14px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;color:#15803d;font-size:13px;font-weight:500;">
+              <i class="fa-solid fa-circle-check me-2"></i>
+              All medicines are in stock. Ready to dispense.
+            </div>
+
+            <!-- Short stock warning -->
+            <div *ngIf="!stockCheck.canDispense"
+                 style="margin-top:12px;padding:10px 14px;background:#fef2f2;border:1px solid #fecaca;border-radius:8px;color:#b91c1c;font-size:13px;font-weight:500;">
+              <i class="fa-solid fa-triangle-exclamation me-2"></i>
+              Insufficient stock for one or more medicines. Contact procurement before dispensing.
+            </div>
+          </div>
+
+          <!-- Check unavailable -->
+          <div *ngIf="!stockChecking && !stockCheck"
+               style="padding:10px 14px;background:#fff7ed;border:1px solid #fed7aa;border-radius:8px;color:#92400e;font-size:13px;">
+            <i class="fa-solid fa-circle-exclamation me-2"></i>
+            Stock check unavailable — verify manually before proceeding.
+          </div>
+        </div>
+
+        <hr style="border-color:#f1f5f9;margin:0 0 16px;">
+
+        <p class="mb-3" style="font-size:14px;color:#374151;">
+          You are dispensing all medicines for prescription
+          <strong>{{ refNo(modalPrescription.prescriptionId) }} ({{ modalPrescription.patientName }})</strong>.
+          Stock will be deducted once (FEFO) and a paid bill will be generated automatically
+          and linked to this prescription.
+        </p>
+        <label class="form-label-cms">Remarks (optional)</label>
+        <textarea class="form-control-cms" rows="2" [(ngModel)]="modalRemarks"
+                  placeholder="Any notes..."></textarea>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn-outline-cms" (click)="closeModal()"
+                [disabled]="dispensing">Cancel</button>
+        <button type="button" class="btn-primary-cms" (click)="confirmDispense()"
+                [disabled]="!canConfirm"
+                [title]="stockCheck && !stockCheck.canDispense ? 'Cannot dispense — insufficient stock for one or more medicines' : ''">
+          <span *ngIf="dispensing || stockChecking" class="spinner-border spinner-border-sm me-1"></span>
+          <i *ngIf="!dispensing && !stockChecking" class="fa-solid fa-check me-1"></i>
+          {{ dispensing ? 'Processing…' : stockChecking ? 'Checking stock…' : 'Confirm — Dispense & Bill' }}
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>

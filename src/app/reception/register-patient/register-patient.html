@@ -1,0 +1,436 @@
+<div class="container-fluid">
+
+    <div class="card shadow-sm">
+
+        <div class="card-header theme-header">
+            <h4 class="mb-0">
+                <i class="fa fa-user-plus mr-2"></i>
+                Register New Patient
+            </h4>
+        </div>
+
+        <div class="card-body">
+
+            <!-- ================= Registration Confirmation ================= -->
+
+            <div class="text-center py-5" *ngIf="registeredPatient">
+
+                <i class="fa fa-check-circle text-success mb-3" style="font-size: 3.5rem;"></i>
+
+                <h4>Patient Registered Successfully</h4>
+
+                <p class="text-muted mb-4">
+                    {{ registeredPatient.fullName }}
+                    <span *ngIf="registeredPatient.patientCode">
+                        &mdash; {{ registeredPatient.patientCode }}
+                    </span>
+                    has been added to the system.
+                </p>
+
+                <p class="mb-3">Do you want to make an appointment for this patient?</p>
+
+                <button
+                    type="button"
+                    class="btn btn-success mr-2"
+                    (click)="bookAppointment()">
+
+                    <i class="fa fa-calendar-plus-o mr-1"></i>
+                    Yes, book appointment
+
+                </button>
+
+                <button
+                    type="button"
+                    class="btn btn-outline-secondary"
+                    (click)="registerAnother()">
+
+                    No, register another patient
+
+                </button>
+
+            </div>
+
+            <!-- ================= Registration Form ================= -->
+
+            <div *ngIf="!registeredPatient">
+
+            <div class="alert alert-danger" *ngIf="errorMessage">
+                <i class="fa fa-exclamation-circle mr-1"></i>
+                {{ errorMessage }}
+            </div>
+
+            <form [formGroup]="patientForm" (ngSubmit)="onSubmit()">
+
+                <!-- ================= Patient Information ================= -->
+
+                <h5 class="theme-section-title mb-3">
+                    <i class="fa fa-user mr-2"></i>
+                    Patient Information
+                </h5>
+
+                <div class="row">
+
+                    <div class="col-md-6 mb-3">
+                        <label>Patient ID</label>
+                        <input
+                            type="text"
+                            class="form-control"
+                            formControlName="patientCode"
+                            readonly>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label>Aadhaar Number</label>
+                        <input
+                            type="text"
+                            class="form-control"
+                            maxlength="12"
+                            formControlName="aadhaarNo"
+                            placeholder="Enter Aadhaar Number">
+
+                        <small class="text-danger"
+                               *ngIf="patientForm.get('aadhaarNo')?.touched &&
+                                      patientForm.get('aadhaarNo')?.invalid">
+                            Aadhaar number must be exactly 12 digits
+                        </small>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label>First Name <span class="text-danger">*</span></label>
+                        <input
+                            type="text"
+                            class="form-control"
+                            formControlName="firstName"
+                            placeholder="Enter First Name">
+
+                        <small class="text-danger"
+                               *ngIf="patientForm.get('firstName')?.touched &&
+                                      patientForm.get('firstName')?.hasError('required')">
+                            First Name is required
+                        </small>
+                        <small class="text-danger"
+                               *ngIf="patientForm.get('firstName')?.touched &&
+                                      patientForm.get('firstName')?.hasError('minlength')">
+                            First Name must be at least 3 characters
+                        </small>
+                        <small class="text-danger"
+                               *ngIf="patientForm.get('firstName')?.touched &&
+                                      patientForm.get('firstName')?.hasError('pattern')">
+                            Only letters and spaces are allowed, no numbers or special characters
+                        </small>
+
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label>Last Name</label>
+                        <input
+                            type="text"
+                            class="form-control"
+                            formControlName="lastName"
+                            placeholder="Enter Last Name">
+
+                        <small class="text-danger"
+                               *ngIf="patientForm.get('lastName')?.touched &&
+                                      patientForm.get('lastName')?.invalid">
+                            Only letters and spaces are allowed, no numbers or special characters
+                        </small>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label>Date of Birth <span class="text-danger">*</span></label>
+                        <input
+                            type="date"
+                            class="form-control"
+                            [max]="today"
+                            formControlName="dob">
+
+                        <small class="text-danger"
+                               *ngIf="patientForm.get('dob')?.touched &&
+                                      patientForm.get('dob')?.hasError('required')">
+                            Date of birth is required
+                        </small>
+                        <small class="text-danger"
+                               *ngIf="patientForm.get('dob')?.touched &&
+                                      patientForm.get('dob')?.hasError('futureDate')">
+                            Date of birth cannot be in the future
+                        </small>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label>Age</label>
+                        <input
+                            type="text"
+                            class="form-control"
+                            formControlName="age"
+                            readonly>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+
+                        <label class="d-block">
+                            Gender
+                            <span class="text-danger">*</span>
+                        </label>
+
+                        <div class="form-check form-check-inline">
+
+                            <input
+                                class="form-check-input"
+                                type="radio"
+                                id="male"
+                                value="Male"
+                                formControlName="gender">
+
+                            <label class="form-check-label" for="male">
+                                Male
+                            </label>
+
+                        </div>
+
+                        <div class="form-check form-check-inline">
+
+                            <input
+                                class="form-check-input"
+                                type="radio"
+                                id="female"
+                                value="Female"
+                                formControlName="gender">
+
+                            <label class="form-check-label" for="female">
+                                Female
+                            </label>
+
+                        </div>
+
+                        <div class="form-check form-check-inline">
+
+                            <input
+                                class="form-check-input"
+                                type="radio"
+                                id="other"
+                                value="Other"
+                                formControlName="gender">
+
+                            <label class="form-check-label" for="other">
+                                Other
+                            </label>
+
+                        </div>
+
+                        <small class="text-danger d-block"
+                               *ngIf="patientForm.get('gender')?.touched &&
+                                      patientForm.get('gender')?.invalid">
+                            Please select a gender
+                        </small>
+
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+
+                        <label>Blood Group</label>
+
+                        <select
+                            class="form-control"
+                            formControlName="bloodGroup">
+
+                            <option value="">Select Blood Group</option>
+
+                            <option>A+</option>
+                            <option>A-</option>
+                            <option>B+</option>
+                            <option>B-</option>
+                            <option>AB+</option>
+                            <option>AB-</option>
+                            <option>O+</option>
+                            <option>O-</option>
+                            <option>Unknown</option>
+
+                        </select>
+
+                    </div>
+
+                </div>
+
+                <hr>
+
+                <!-- ================= Contact Information ================= -->
+
+                <h5 class="theme-section-title mb-3">
+                    <i class="fa fa-phone mr-2"></i>
+                    Contact Information
+                </h5>
+
+                <div class="row">
+
+                    <div class="col-md-6 mb-3">
+                        <label>Mobile Number <span class="text-danger">*</span></label>
+                        <input
+                            type="text"
+                            class="form-control"
+                            formControlName="mobileNumber"
+                            maxlength="10">
+
+                        <small class="text-danger"
+                               *ngIf="patientForm.get('mobileNumber')?.touched &&
+                                      patientForm.get('mobileNumber')?.hasError('required')">
+                            Mobile number is required
+                        </small>
+                        <small class="text-danger"
+                               *ngIf="patientForm.get('mobileNumber')?.touched &&
+                                      patientForm.get('mobileNumber')?.hasError('pattern')">
+                            Enter a valid 10-digit mobile number starting with 6-9
+                        </small>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label>Alternate Mobile</label>
+                        <input
+                            type="text"
+                            class="form-control"
+                            formControlName="alternateMobile"
+                            maxlength="10">
+
+                        <small class="text-danger"
+                               *ngIf="patientForm.get('alternateMobile')?.touched &&
+                                      patientForm.get('alternateMobile')?.invalid">
+                            Enter a valid 10-digit mobile number starting with 6-9
+                        </small>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label>Email</label>
+                        <input
+                            type="email"
+                            class="form-control"
+                            formControlName="email">
+
+                        <small class="text-danger"
+                               *ngIf="patientForm.get('email')?.touched &&
+                                      patientForm.get('email')?.invalid">
+                            Enter a valid email address
+                        </small>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label>City</label>
+                        <input
+                            type="text"
+                            class="form-control"
+                            formControlName="city">
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label>State</label>
+                        <input
+                            type="text"
+                            class="form-control"
+                            formControlName="state">
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label>Pincode</label>
+                        <input
+                            type="text"
+                            class="form-control"
+                            maxlength="6"
+                            formControlName="pincode">
+
+                        <small class="text-danger"
+                               *ngIf="patientForm.get('pincode')?.touched &&
+                                      patientForm.get('pincode')?.invalid">
+                            Pincode must be exactly 6 digits 
+                        </small>
+                    </div>
+
+                    <div class="col-12 mb-3">
+                        <label>Address</label>
+                        <textarea
+                            rows="3"
+                            class="form-control"
+                            formControlName="address"></textarea>
+                    </div>
+
+                </div>
+
+                <hr>
+
+                <!-- ================= Emergency Contact ================= -->
+
+                <h5 class="theme-section-title mb-3">
+                    <i class="fa fa-ambulance mr-2"></i>
+                    Emergency Contact
+                </h5>
+
+                <div class="row">
+
+                    <div class="col-md-4 mb-3">
+                        <label>Contact Name</label>
+                        <input
+                            type="text"
+                            class="form-control"
+                            formControlName="emergencyName">
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                        <label>Relationship</label>
+                        <input
+                            type="text"
+                            class="form-control"
+                            formControlName="relationship">
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                        <label>Contact Number</label>
+                        <input
+                            type="text"
+                            class="form-control"
+                            maxlength="10"
+                            formControlName="emergencyMobile">
+
+                        <small class="text-danger"
+                               *ngIf="patientForm.get('emergencyMobile')?.touched &&
+                                      patientForm.get('emergencyMobile')?.invalid">
+                            Enter a valid 10-digit mobile number starting with 6-9
+                        </small>
+                    </div>
+
+                </div>
+
+                <hr>
+
+                <!-- ================= Buttons ================= -->
+
+                <div class="text-right">
+
+                    <button
+                        type="submit"
+                        class="btn btn-success mr-2"
+                        [disabled]="submitting">
+
+                        <i class="fa mr-1" [ngClass]="submitting ? 'fa-spinner fa-spin' : 'fa-save'"></i>
+                        {{ submitting ? 'Saving...' : 'Save Patient' }}
+
+                    </button>
+
+                    <button
+                        type="button"
+                        class="btn btn-secondary"
+                        [disabled]="submitting"
+                        (click)="resetForm()">
+
+                        <i class="fa fa-refresh mr-1"></i>
+                        Reset
+
+                    </button>
+
+                </div>
+
+            </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

@@ -1,0 +1,3 @@
+@media print {
+  .ph-sidebar, .ph-topbar, .btn, .d-flex.gap-2 { display: none !important; }
+}
