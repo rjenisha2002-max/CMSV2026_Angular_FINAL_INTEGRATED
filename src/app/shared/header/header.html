@@ -1,4 +1,6 @@
-<nav class="navbar navbar-expand-lg navbar-dark app-navbar">
+<!-- <nav class="navbar navbar-expand-lg navbar-dark app-navbar"> -->
+  <!-- added -->
+<nav class="navbar navbar-expand-lg navbar-dark app-navbar" *ngIf="role !== 'Pharmacist'">
   <a class="navbar-brand" [routerLink]="authService.dashboardRouteForRole(role)">
     <i class="fa fa-hospital-o"></i> InfinityCoderzz CMS
   </a>
@@ -27,7 +29,7 @@
       <li class="nav-item"><a class="nav-link" routerLink="/reception/reports" routerLinkActive="active">Reports</a></li>
     </ul>
 
-    <ul class="navbar-nav mr-auto" *ngIf="role === 'Pharmacist'">
+    <!-- <ul class="navbar-nav mr-auto" *ngIf="role === 'Pharmacist'">
       <li class="nav-item"><a class="nav-link" routerLink="/pharmacy/dashboard" routerLinkActive="active">Dashboard</a></li>
       <li class="nav-item"><a class="nav-link" routerLink="/pharmacy/medicines" routerLinkActive="active">Medicines</a></li>
       <li class="nav-item"><a class="nav-link" routerLink="/pharmacy/medicine-stock" routerLinkActive="active">Stock</a></li>
@@ -36,7 +38,20 @@
       <li class="nav-item"><a class="nav-link" routerLink="/pharmacy/bills" routerLinkActive="active">Bills</a></li>
       <li class="nav-item"><a class="nav-link" routerLink="/pharmacy/logs" routerLinkActive="active">Logs</a></li>
       <li class="nav-item"><a class="nav-link" routerLink="/pharmacy/reports" routerLinkActive="active">Reports</a></li>
-    </ul>
+    </ul> -->
+
+    <!-- CORRECT: -->
+<ul class="navbar-nav mr-auto" *ngIf="role === 'Pharmacist'">
+  <li class="nav-item"><a class="nav-link" routerLink="/pharmacy/dashboard" routerLinkActive="active">Dashboard</a></li>
+  <li class="nav-item"><a class="nav-link" routerLink="/pharmacy/medicine" routerLinkActive="active">Medicines</a></li>
+  <li class="nav-item"><a class="nav-link" routerLink="/pharmacy/stock" routerLinkActive="active">Stock</a></li>
+  <li class="nav-item"><a class="nav-link" routerLink="/pharmacy/prescription" routerLinkActive="active">Prescriptions</a></li>
+  <li class="nav-item"><a class="nav-link" routerLink="/pharmacy/dispensing" routerLinkActive="active">Dispensing</a></li>
+  <li class="nav-item"><a class="nav-link" routerLink="/pharmacy/bills" routerLinkActive="active">Bills</a></li>
+  <li class="nav-item"><a class="nav-link" routerLink="/pharmacy/reports" routerLinkActive="active">Reports</a></li>
+  <li class="nav-item"><a class="nav-link" routerLink="/pharmacy/inventory-log" routerLinkActive="active">Inventory Log</a></li>
+  <li class="nav-item"><a class="nav-link" routerLink="/pharmacy/audit-log" routerLinkActive="active">Audit Log</a></li>
+</ul>
 
     <ul class="navbar-nav ml-auto" *ngIf="role">
       <li class="nav-item"><span class="nav-link disabled">{{ fullName }} ({{ role }})</span></li>

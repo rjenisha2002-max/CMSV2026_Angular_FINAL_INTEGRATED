@@ -7,6 +7,16 @@ import { routes } from './app.routes';
 import { credentialsInterceptor } from './interceptors/credentials-interceptor';
 import { unauthorizedInterceptor } from './interceptors/unauthorized-interceptor';
 
+// export const appConfig: ApplicationConfig = {
+//   providers: [
+//     provideBrowserGlobalErrorListeners(),
+//     provideZoneChangeDetection({ eventCoalescing: true }),
+//     provideRouter(routes),
+//     provideHttpClient(withInterceptors([credentialsInterceptor, unauthorizedInterceptor])),
+//     provideAnimationsAsync()
+//   ]
+// };
+
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),

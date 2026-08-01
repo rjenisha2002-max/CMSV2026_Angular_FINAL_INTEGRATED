@@ -1,4 +1,14 @@
-import { Component, OnInit, OnDestroy, inject, DestroyRef, ChangeDetectorRef } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  OnDestroy,
+  AfterViewInit,
+  ViewChild,
+  ElementRef,
+  inject,
+  DestroyRef,
+  ChangeDetectorRef
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
@@ -18,15 +28,29 @@ Chart.register(...registerables);
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css'
 })
-export class PharmacyDashboard implements OnInit, OnDestroy {
+export class PharmacyDashboard implements OnInit, AfterViewInit, OnDestroy {
+
+
+  
   dashboard:     DashboardData | null = null;
   loading  = true;
   error    = '';
   today    = new Date();
   pharmacistName = 'Pharmacist';
 
+
+  private viewReady = false;
+private dashboardData: DashboardData | null = null;
+
   private revenueChart:    Chart | null = null;
   private dispensingChart: Chart | null = null;
+
+
+  @ViewChild('revenueCanvas')
+revenueCanvas!: ElementRef<HTMLCanvasElement>;
+
+@ViewChild('dispensingCanvas')
+dispensingCanvas!: ElementRef<HTMLCanvasElement>;
 
   private destroyRef = inject(DestroyRef);
   private cdr        = inject(ChangeDetectorRef);
@@ -37,6 +61,8 @@ export class PharmacyDashboard implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
+
+   // console.log("Dashboard ngOnInit");
     this.pharmacistName = this.authService.getFullName() ?? 'Pharmacist';
     this.loading = true;
     this.error   = '';
@@ -46,15 +72,18 @@ export class PharmacyDashboard implements OnInit, OnDestroy {
       finalize(() => { this.loading = false; this.cdr.markForCheck(); })
     ).subscribe({
       next: (data) => {
-        this.dashboard = data;
-        // Set loading=false and markForCheck() HERE so Angular renders the
-        // *ngIf canvases before the setTimeout callback fires.
-        this.loading = false;
-        this.cdr.markForCheck();
-        // Give Angular one rendering cycle to paint the <canvas> elements
-        // that live inside *ngIf, then initialise Chart.js.
-        setTimeout(() => this.initCharts(data), 0);
-      },
+
+  // console.log("Dashboard API:", data);
+
+  this.dashboard = data;
+  this.dashboardData = data;
+
+  this.loading = false;
+
+  this.cdr.detectChanges();
+
+  this.tryInitializeCharts();
+},
       error: (err) => {
         this.error = err?.status === 401
           ? 'Session expired. Please log in again.'
@@ -63,14 +92,51 @@ export class PharmacyDashboard implements OnInit, OnDestroy {
     });
   }
 
+  ngAfterViewInit(): void {
+
+    // console.log("Dashboard ngAfterViewInit");
+    this.viewReady = true;
+    this.tryInitializeCharts();
+}
+
+private tryInitializeCharts(): void {
+
+    if (!this.viewReady) {
+        return;
+    }
+
+    if (!this.dashboardData) {
+        return;
+    }
+
+    this.initCharts(this.dashboardData);
+}
+
   private initCharts(data: DashboardData): void {
+
+    // console.log("Dashboard Data:", data);
+
+//console.log("Revenue Chart Data:", data.revenueChart);
+//console.log("Dispensing Chart Data:", data.dispensingChart);
+
+//console.log("Revenue Canvas:", this.revenueCanvas.nativeElement);
+//console.log("Revenue Context:", this.revenueCanvas.nativeElement.getContext("2d"));
+
+//console.log("Revenue Width:", this.revenueCanvas.nativeElement.clientWidth);
+//console.log("Revenue Height:", this.revenueCanvas.nativeElement.clientHeight);
+
+
+
+
     const revLabels = data.revenueChart.map(p => p.label);
     const revValues = data.revenueChart.map(p => p.value);
     const disLabels = data.dispensingChart.map(p => p.label);
     const disValues = data.dispensingChart.map(p => p.value);
 
     // ── Revenue — line chart (exactly as MVC) ─────────────────────────────
-    const revEl = document.getElementById('revenueChart') as HTMLCanvasElement | null;
+   // const revEl = document.getElementById('revenueChart') as HTMLCanvasElement | null;
+   //const revEl = this.revenueCanvas.nativeElement;
+   const revEl = this.revenueCanvas.nativeElement;
     if (revEl) {
       if (this.revenueChart) { this.revenueChart.destroy(); }
       this.revenueChart = new Chart(revEl, {
@@ -96,7 +162,8 @@ export class PharmacyDashboard implements OnInit, OnDestroy {
     }
 
     // ── Dispensing — bar chart (exactly as MVC) ───────────────────────────
-    const disEl = document.getElementById('dispensingChart') as HTMLCanvasElement | null;
+    //const disEl = document.getElementById('dispensingChart') as HTMLCanvasElement | null;
+    const disEl = this.dispensingCanvas.nativeElement;
     if (disEl) {
       if (this.dispensingChart) { this.dispensingChart.destroy(); }
       this.dispensingChart = new Chart(disEl, {
@@ -126,6 +193,8 @@ export class PharmacyDashboard implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+
+   // console.log("Dashboard ngOnDestroy");
     this.revenueChart?.destroy();
     this.dispensingChart?.destroy();
   }

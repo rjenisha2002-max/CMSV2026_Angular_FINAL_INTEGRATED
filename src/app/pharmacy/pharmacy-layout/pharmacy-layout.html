@@ -1,5 +1,21 @@
 <!-- Pharmacy Layout Shell -->
-<div class="pharmacy-shell" [class.sidebar-collapsed]="sidebarCollapsed">
+<!--
+  Rendering (and therefore the <router-outlet> below, which is what mounts
+  every pharmacy child page such as the dashboard) is held off until
+  themeReady is true, i.e. until Bootstrap 5 / Font Awesome 6 / the Google
+  Font / pharmacy-global.css have all finished loading. This is what removes
+  the first-load race condition: no pharmacy page (and no Chart.js instance)
+  can initialize before its styles are in effect, and there's no unstyled
+  flash of the shell itself either. The placeholder below intentionally uses
+  no pharmacy-specific classes so it doesn't depend on the CSS it's waiting for.
+-->
+
+
+<div *ngIf="!themeReady" style="display:flex;align-items:center;justify-content:center;height:100vh;font-family:sans-serif;color:#555;">
+  Loading Pharmacy…
+</div>
+
+<div class="pharmacy-shell" *ngIf="themeReady" [class.sidebar-collapsed]="sidebarCollapsed">
 
   <!-- ── Sidebar ─────────────────────────────────────────────────── -->
   <aside class="ph-sidebar">

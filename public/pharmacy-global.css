@@ -1,0 +1,276 @@
+/* ==========================================================================
+   Global Pharmacy CMS Styles  — Plus Jakarta Sans font system
+   ========================================================================== */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: 'Plus Jakarta Sans', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  background: #f1f5f9;
+  color: #1e293b;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  letter-spacing: 0.01em;
+}
+
+/* ─── Page wrapper ─────────────────────────────────────────────────────── */
+.ph-page { min-height: 100%; }
+
+.ph-page-title {
+  font-size: 21px;
+  font-weight: 700;
+  color: #0f172a;
+  line-height: 1.2;
+  letter-spacing: -0.3px;
+}
+.ph-page-sub { font-size: 13px; color: #64748b; margin-top: 3px; font-weight: 400; }
+
+/* ─── Cards ────────────────────────────────────────────────────────────── */
+.ph-card {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+  border: 1px solid #e2e8f0;
+  overflow: hidden;
+}
+.ph-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  border-bottom: 1px solid #f1f5f9;
+  background: #fafbfc;
+}
+.ph-card-title {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #334155;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.ph-card-title i { color: #64748b; }
+.ph-card-body { padding: 20px; }
+
+/* ─── ph-table  (unified table style — replaces both cms-table & table-dark) */
+.ph-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13.5px;
+}
+.ph-table thead th {
+  background: #f8fafc;
+  color: #475569;
+  font-size: 11.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .55px;
+  padding: 10px 16px;
+  border-bottom: 2px solid #e2e8f0;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+.ph-table tbody td {
+  padding: 11px 16px;
+  border-bottom: 1px solid #f1f5f9;
+  color: #1e293b;
+  vertical-align: middle;
+}
+.ph-table tbody tr:last-child td { border-bottom: none; }
+.ph-table tbody tr:hover { background: #f8fafc; transition: background .12s; }
+
+/* Alias for Bootstrap tables — keep consistent sizing */
+.table { font-size: 13.5px; }
+.table thead th {
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+.table tbody td { vertical-align: middle; }
+
+/* ─── Badges ────────────────────────────────────────────────────────────── */
+.ph-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 9px;
+  border-radius: 20px;
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: .2px;
+}
+.ph-badge-success  { background: #dcfce7; color: #16a34a; }
+.ph-badge-danger   { background: #fee2e2; color: #dc2626; }
+.ph-badge-warning  { background: #fef3c7; color: #b45309; }
+.ph-badge-info     { background: #dbeafe; color: #1d4ed8; }
+.ph-badge-gray     { background: #f1f5f9; color: #475569; }
+
+/* ─── Spinner ───────────────────────────────────────────────────────────── */
+.ph-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+  color: #64748b;
+  gap: 12px;
+}
+.ph-loading .spinner-border { width: 32px; height: 32px; border-width: 3px; }
+
+/* ─── Utility ───────────────────────────────────────────────────────────── */
+.text-muted  { color: #64748b !important; }
+.fw-semibold { font-weight: 600; }
+.qty-danger  { color: #dc2626; font-weight: 700; }
+
+/* ==========================================================================
+   MVC CMS class aliases — makes Angular templates identical to MVC views
+   ========================================================================== */
+
+.page-title { font-size: 20px; font-weight: 700; color: #1e293b; line-height: 1.25; }
+.page-sub   { font-size: 13px; color: #64748b; margin-top: 2px; }
+
+.cms-card {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  box-shadow: 0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+}
+.cms-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  border-bottom: 1px solid #e2e8f0;
+}
+.cms-card-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1e293b;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.cms-card-body { padding: 18px; }
+
+.cms-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.cms-table thead th {
+  background: #f8fafc;
+  color: #64748b;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  padding: 10px 14px;
+  border-bottom: 1px solid #e2e8f0;
+  white-space: nowrap;
+}
+.cms-table tbody tr { border-bottom: 1px solid #f1f5f9; transition: background .1s; }
+.cms-table tbody tr:hover { background: #f8fafc; }
+.cms-table tbody td { padding: 11px 14px; color: #1e293b; vertical-align: middle; }
+.cms-table tbody tr:last-child { border-bottom: none; }
+
+.alert-row { background: #fff5f5 !important; }
+
+/* CMS Badges */
+.badge-cms {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11.5px;
+  font-weight: 600;
+}
+.badge-cms.badge-success { background: #dcfce7; color: #166534; }
+.badge-cms.badge-danger  { background: #fee2e2; color: #991b1b; }
+.badge-cms.badge-warn    { background: #fef3c7; color: #92400e; }
+.badge-cms.badge-gray    { background: #f1f5f9; color: #475569; }
+.badge-cms.badge-blue    { background: #dbeafe; color: #1e40af; }
+
+/* CMS Form controls */
+.form-control-cms {
+  width: 100%;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 14px;
+  color: #1e293b;
+  background: #fff;
+  outline: none;
+  transition: border-color .15s, box-shadow .15s;
+  font-family: inherit;
+  appearance: auto;
+}
+.form-control-cms:focus { border-color: #198754; box-shadow: 0 0 0 3px rgba(25,135,84,.12); }
+.form-control-cms.is-invalid { border-color: #dc3545; }
+.form-label-cms { font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 6px; display: block; }
+.req { color: #dc2626; }
+
+/* CMS Buttons */
+.btn-primary-cms,
+.btn-cms {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: #198754;
+  color: #fff !important;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background .15s;
+  font-family: inherit;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+.btn-primary-cms:hover,
+.btn-cms:hover { background: #146c43; color: #fff !important; }
+
+.btn-outline-cms {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: transparent;
+  color: #475569;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all .15s;
+  font-family: inherit;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+.btn-outline-cms:hover { border-color: #94a3b8; color: #1e293b; background: #f8fafc; }
+
+.btn-danger-cms {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: #dc3545;
+  color: #fff !important;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background .15s;
+  font-family: inherit;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+.btn-danger-cms:hover { background: #b02a37; color: #fff !important; }
+
+.btn-sm-cms { padding: 5px 10px !important; font-size: 12px !important; }

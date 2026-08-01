@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, DestroyRef, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, DestroyRef, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
@@ -6,6 +6,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { PharmacyService } from '../services/pharmacy.service';
 import { BillViewModel, BillItemViewModel } from '../models/bill.model';
 import { generateBillPdf } from '../utils/bill-pdf';
+import { loadPharmacyTheme, unloadPharmacyTheme } from '../utils/pharmacy-theme';
 
 @Component({
   selector: 'app-bill-invoice',
@@ -14,7 +15,7 @@ import { generateBillPdf } from '../utils/bill-pdf';
   templateUrl: './bill-invoice.html',
   styleUrl: './bill-invoice.css'
 })
-export class BillInvoice implements OnInit {
+export class BillInvoice implements OnInit, OnDestroy {
   bill:  BillViewModel | null = null;
   items: BillItemViewModel[]  = [];
   loading = true;
@@ -29,6 +30,7 @@ export class BillInvoice implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    loadPharmacyTheme();
     const id = +this.route.snapshot.paramMap.get('id')!;
 
     this.pharmacyService.getBillDetails(id).pipe(
@@ -58,4 +60,8 @@ export class BillInvoice implements OnInit {
   }
 
   print(): void { window.print(); }
+
+  ngOnDestroy(): void {
+    unloadPharmacyTheme();
+  }
 }

@@ -43,7 +43,7 @@ import { AuditLog, InventoryLog, AuditLogResponse } from '../models/audit-log.mo
 @Injectable({ providedIn: 'root' })
 export class PharmacyService {
   private api = environment.apiUrl;
-  /** Shorthand: api/pharmacist/ */
+  /** Shorthand: api/pharmacist/ — team's environment.apiUrl has no trailing slash */
   private ph = `${environment.apiUrl}/pharmacist/`;
 
   constructor(private http: HttpClient) { }
